@@ -38,7 +38,7 @@ task tools:install qa # see other recipes by calling `task`
 git config --local core.hooksPath .githooks
 ```
 
-### Testing
+## Testing
 
 ```shell
 # run quick checks
