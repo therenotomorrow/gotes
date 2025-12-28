@@ -1,0 +1,84 @@
+version: "2"
+
+linters:
+  default: all
+  disable:
+    # deprecated: by golangci-lint
+    - wsl
+    # useless: decide to not use it
+    - revive
+    - depguard
+    - wrapcheck
+  settings:
+    varnamelen:
+      ignore-names:
+        - id
+        - tx
+    gocritic:
+      enable-all: true
+    ireturn:
+      allow:
+        - error
+        - generic
+        - anon
+        - stdlib
+        - .*(or|er)$
+        - v5\.Tx$
+        - .*Repository$
+  exclusions:
+    rules:
+      - path: domain/types
+        linters:
+        - gochecknoglobals
+      - path: validate.go
+        linters:
+          - gochecknoglobals
+      - text: Mapping
+        linters:
+          - gochecknoglobals
+      - path: config.go
+        linters:
+          - mnd
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+    - golines
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/therenotomorrow/easyg)
+    gofmt:
+      simplify: true
+      rewrite-rules:
+        - pattern: 'interface{}'
+          replacement: 'any'
+    golines:
+      max-len: 120
+      tab-len: 4
+      shorten-comments: true
+      chain-split-dots: true
+
+issues:
+  fix: true
+  max-same-issues: 0
+  max-issues-per-linter: 0
+
+output:
+  formats:
+    text:
+      path: stdout
+      print-linter-name: true
+      print-issued-lines: true
+      colors: true
+  show-stats: true
+
+run:
+  go: "1.25"
+  allow-parallel-runners: true
+  timeout: 5m

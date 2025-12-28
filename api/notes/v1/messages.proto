@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package api.notes.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/notes/v1";
+
+import "api/types/id.proto";
+import "google/protobuf/timestamp.proto";
+
+// Note represents a single note entity.
+message Note {
+  // Unique identifier of the note.
+  api.types.ID id = 1;
+
+  // Title of the note.
+  string title = 2;
+
+  // Content/body of the note.
+  string content = 3;
+
+  // Timestamp when the note was created.
+  google.protobuf.Timestamp created_at = 4;
+
+  // Timestamp when the note was last updated.
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+// ListNotesRequest is the request message for listing notes.
+message ListNotesRequest {}
+
+// ListNotesResponse is the response message containing a list of notes.
+message ListNotesResponse {
+  // List of notes.
+  repeated Note notes = 1;
+}
+
+// RetrieveNoteRequest is the request message for fetching a single note by ID.
+message RetrieveNoteRequest {
+  // ID of the note to retrieve.
+  api.types.ID id = 1;
+}
+
+// RetrieveNoteResponse is the response message for a single note retrieval.
+message RetrieveNoteResponse {
+  // The requested note.
+  Note note = 1;
+}
+
+// CreateNoteRequest is the request message for creating a new note.
+message CreateNoteRequest {
+  // Title of the new note.
+  string title = 1;
+
+  // Content/body of the new note.
+  string content = 2;
+}
+
+// CreateNoteResponse is the response message after creating a note.
+message CreateNoteResponse {
+  // The created note, including its generated ID and timestamps.
+  Note note = 1;
+}
+
+// DeleteNoteRequest is the request message for deleting a note by ID.
+message DeleteNoteRequest {
+  // ID of the note to delete.
+  api.types.ID id = 1;
+}
+
+// DeleteNoteResponse is the response message after deleting a note.
+message DeleteNoteResponse {}

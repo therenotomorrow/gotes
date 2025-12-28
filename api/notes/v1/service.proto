@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package api.notes.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/notes/v1";
+
+import "api/notes/v1/messages.proto";
+
+// NotesService provides CRUD operations for managing notes.
+service NotesService {
+  // ListNotes returns a list of notes.
+  rpc ListNotes(ListNotesRequest) returns (ListNotesResponse);
+
+  // RetrieveNote returns a single note by its unique identifier.
+  rpc RetrieveNote(RetrieveNoteRequest) returns (RetrieveNoteResponse);
+
+  // CreateNote creates a new note and returns it with the unique identifier.
+  rpc CreateNote(CreateNoteRequest) returns (CreateNoteResponse);
+
+  // DeleteNote deletes a note by its unique identifier.
+  rpc DeleteNote(DeleteNoteRequest) returns (DeleteNoteResponse);
+}

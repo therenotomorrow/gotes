@@ -1,0 +1,13 @@
+version: '3'
+
+tasks:
+  smoke:
+    desc: Run fast unit tests (smoke tests)
+    cmds:
+      - go test ./...
+
+  cover:
+    desc: Run tests with race detector and coverage report
+    cmds:
+      - go test -count 1 -parallel 8 -race -coverprofile=coverage.out ./...
+      - go tool cover -func coverage.out

@@ -1,0 +1,27 @@
+version: '3'
+
+tasks:
+  lint:
+    desc: Run `golangci-lint` across the entire Go module
+    cmds:
+      - ./.bin/golangci-lint run ./...
+
+  align:
+    desc: Apply `betteralign` to format all Go source files
+    cmds:
+      - ./.bin/betteralign -apply ./...
+
+  mocks:
+    desc: Generate mocks for selected interfaces using `mockery`
+    cmds:
+      - ./.bin/mockery
+
+  contracts:
+    desc: Generate gRPC contracts using `easyp`
+    cmds:
+      - ./.bin/easyp generate
+
+  sql:
+    desc: Generate SQL commands and queries using `sqlc`
+    cmds:
+      - ./.bin/sqlc generate
