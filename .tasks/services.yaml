@@ -5,6 +5,10 @@ env:
   GOOSE_DBSTRING: '{{.GOTES_POSTGRES_DSN}}'
   GOOSE_MIGRATION_DIR: '{{.ROOT_DIR}}/tools/sql/migrations'
 
+vars:
+  BIN: "{{.ROOT_DIR}}/.bin"
+  CMD: "{{.ROOT_DIR}}/cmd"
+
 tasks:
   postgres:
     desc: Run a local PostgreSQL using docker
@@ -38,3 +42,15 @@ tasks:
     desc: Run arbitrary commands directly with `sqlc` (e.g., `sqlc -- lint`)
     cmds:
       - ./.bin/sqlc {{.CLI_ARGS}}
+
+  server:
+    desc: Build and run service server
+    cmds:
+      - 'go build -o {{.BIN}}/server {{.CMD}}/server/main.go'
+      - '{{.BIN}}/server'
+
+  client:
+    desc: Build and run service client
+    cmds:
+      - 'go build -o {{.BIN}}/client {{.CMD}}/client/main.go'
+      - '{{.BIN}}/client'

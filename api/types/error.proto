@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package api.types;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/types";
+
+// ErrorCode represents a readable error classification.
+enum ErrorCode {
+  // Unknown or unspecified error.
+  ERROR_CODE_UNKNOWN = 0;
+
+  // The provided identifier is invalid or malformed.
+  ERROR_CODE_INVALID_ID = 1;
+
+  // The provided email address is invalid.
+  ERROR_CODE_INVALID_EMAIL = 2;
+
+  // The provided password does not meet validation requirements.
+  ERROR_CODE_INVALID_PASSWORD = 3;
+
+  // The provided title is invalid.
+  ERROR_CODE_INVALID_TITLE = 4;
+
+  // The provided content is invalid.
+  ERROR_CODE_INVALID_CONTENT = 5;
+
+  // The requested entity does not exist.
+  ERROR_CODE_ENTITY_NOT_FOUND = 6;
+
+  // The caller does not have permission to perform the requested operation.
+  ERROR_CODE_PERMISSION_DENIED = 7;
+
+  // Internal server error.
+  ERROR_CODE_INTERNAL = 99;
+}
+
+// Error represents a structured error returned by the API.
+message Error {
+  // Readable error code.
+  ErrorCode code = 1;
+
+  // Human-readable explanation of the error.
+  //
+  // Intended for debugging or displaying to end users.
+  string reason = 2;
+}

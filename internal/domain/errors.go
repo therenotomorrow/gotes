@@ -1,9 +1,13 @@
 package domain
 
-import (
-	"github.com/therenotomorrow/gotes/internal/domain/entities"
-)
+type Error string
+
+func (e Error) Error() string {
+	return string(e)
+}
 
 const (
-	ErrNoteNotFound entities.Error = "note not found"
+	ErrNoteNotFound     Error = "note not found"
+	ErrUserNotFound     Error = "user not found"
+	ErrPermissionDenied Error = "permission denied"
 )

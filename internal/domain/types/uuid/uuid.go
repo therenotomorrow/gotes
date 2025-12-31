@@ -1,39 +1,49 @@
 package uuid
 
-import (
-	"github.com/google/uuid"
-	"github.com/therenotomorrow/ex"
-)
-
-const (
-	ErrInvalidUUID ex.Error = "invalid uuid"
-)
-
-var zeroUUID UUID
-
 type UUID struct {
 	value string
 }
 
 func New() UUID {
-	val := ex.Critical(uuid.NewRandom())
+	uuid, err := Create()
+	if err != nil {
+		panic(err)
+	}
 
-	return UUID{value: val.String()}
+	return uuid
+}
+
+func Create() (UUID, error) {
+	val, err := generator.Generate()
+	if err != nil {
+		return UUID{value: ""}, err
+	}
+
+	return UUID{value: val}, nil
+}
+
+func Conv(uuid string) UUID {
+	val, err := Parse(uuid)
+	if err != nil {
+		panic(err)
+	}
+
+	return val
 }
 
 func Parse(raw string) (UUID, error) {
-	val, err := uuid.Parse(raw)
-	if err != nil {
-		return zeroUUID, ErrInvalidUUID.Because(err)
+	valid, err := generator.Validate(raw)
+
+	switch {
+	case err != nil:
+		return UUID{value: ""}, err
+	case !valid:
+		return UUID{value: ""}, ErrInvalidUUID
 	}
 
-	return UUID{value: val.String()}, nil
+	return UUID{value: raw}, nil
 }
 
 func (u UUID) Value() string {
-	return u.value
-}
-
-func (u UUID) String() string {
 	return u.value
 }

@@ -1,11 +1,19 @@
-pkgname: mocks
 template: testify
-filename: "{{ .InterfaceName | lower }}.go"
+filename: "{{ .InterfaceName | lower }}.mock.go"
 packages:
   github.com/therenotomorrow/gotes/internal/api/notes/v1/ports:
     config:
-      dir: internal/api/notes/v1/mocks
+      pkgname: adapters
+      dir: internal/api/notes/v1/adapters
     interfaces:
       NotesRepository: {}
+      UnitOfWork: {}
+      Store: {}
+  github.com/therenotomorrow/gotes/internal/api/users/v1/ports:
+    config:
+      pkgname: adapters
+      dir: internal/api/users/v1/adapters
+    interfaces:
+      UsersRepository: {}
       UnitOfWork: {}
       Store: {}

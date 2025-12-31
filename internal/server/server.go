@@ -8,64 +8,101 @@ import (
 	"sync"
 	"syscall"
 
+	"buf.build/go/protovalidate"
 	"github.com/therenotomorrow/ex"
-	v1 "github.com/therenotomorrow/gotes/internal/api/notes/v1"
+	notesv1 "github.com/therenotomorrow/gotes/internal/api/notes/v1"
+	usersv1 "github.com/therenotomorrow/gotes/internal/api/users/v1"
 	"github.com/therenotomorrow/gotes/internal/config"
-	"github.com/therenotomorrow/gotes/internal/storages/postgres"
-	pb "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
-	"github.com/therenotomorrow/gotes/pkg/interceptors"
-	"github.com/therenotomorrow/gotes/pkg/tracer"
+	"github.com/therenotomorrow/gotes/internal/domain/types/email"
+	"github.com/therenotomorrow/gotes/internal/domain/types/password"
+	"github.com/therenotomorrow/gotes/internal/domain/types/uuid"
+	"github.com/therenotomorrow/gotes/internal/services/auth"
+	"github.com/therenotomorrow/gotes/internal/storages/postgres/database"
+	pbnotesv1 "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
+	pbusersv1 "github.com/therenotomorrow/gotes/pkg/api/users/v1"
+	"github.com/therenotomorrow/gotes/pkg/services/generate"
+	"github.com/therenotomorrow/gotes/pkg/services/secure"
+	"github.com/therenotomorrow/gotes/pkg/services/trace"
+	"github.com/therenotomorrow/gotes/pkg/services/validate"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 )
 
-type Dependencies struct {
-	Database *postgres.Database
-	Logger   *slog.Logger
-}
-
-func (d *Dependencies) Close() {
-	d.Database.Close()
-}
-
 type Server struct {
-	deps   Dependencies
-	tracer *tracer.Tracer
+	deps   *Dependencies
+	logger *slog.Logger
 	grpc   *grpc.Server
-	config config.Config
+	config *config.Config
 	once   sync.Once
 }
 
-func New(cfg config.Config, deps Dependencies) *Server {
-	logger := deps.Logger
-	server := setupServer(deps, logger)
+func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
+	tracer := trace.New(logger)
+	validator := ex.Critical(protovalidate.New())
 
-	return &Server{
-		config: cfg,
-		deps:   deps,
-		tracer: tracer.New(logger),
-		grpc:   server,
-		once:   sync.Once{},
-	}
-}
-
-func setupServer(deps Dependencies, logger *slog.Logger) *grpc.Server {
-	srv := grpc.NewServer(
+	server := grpc.NewServer(
+		grpc.MaxConcurrentStreams(cfg.Server.MaxConcurrentStreams),
+		grpc.KeepaliveParams(
+			keepalive.ServerParameters{
+				MaxConnectionIdle:     cfg.Server.KeepAlive.MaxConnection.Idle,
+				MaxConnectionAge:      cfg.Server.KeepAlive.MaxConnection.Age,
+				MaxConnectionAgeGrace: cfg.Server.KeepAlive.MaxConnection.AgeGrace,
+				Time:                  cfg.Server.KeepAlive.Time,
+				Timeout:               cfg.Server.KeepAlive.Timeout,
+			},
+		),
+		grpc.KeepaliveEnforcementPolicy(keepalive.EnforcementPolicy{
+			MinTime:             cfg.Server.KeepAlive.EnforcementPolicy.MinTime,
+			PermitWithoutStream: cfg.Server.KeepAlive.EnforcementPolicy.PermitWithoutStream,
+		}),
 		grpc.ChainUnaryInterceptor(
-			interceptors.Trace(logger),
-			interceptors.Logging(logger),
+			tracer.UnaryServerInterceptor,
+			LoggingUnaryServerInterceptor(tracer),
+			validate.UnaryServerInterceptor(validator),
+			auth.UnaryServerInterceptor(deps.Authenticator, []string{
+				"/api.users.v1.UsersService/RegisterUser",
+				"/api.users.v1.UsersService/RefreshToken",
+			}...),
 		),
 	)
 
-	pb.RegisterNotesServiceServer(srv, v1.Service(deps.Database))
-	reflection.Register(srv)
+	email.SetValidator(deps.EmailValidator)
+	uuid.SetGenerator(deps.UUIDGenerator)
+	password.SetHasher(deps.PasswordHasher)
 
-	return srv
+	pbnotesv1.RegisterNotesServiceServer(server, notesv1.Service(deps.Secure, deps.Database, logger))
+	pbusersv1.RegisterUsersServiceServer(server, usersv1.Service(deps.Database, logger))
+
+	if cfg.Debug {
+		reflection.Register(server)
+	}
+
+	return &Server{logger: logger, grpc: server, config: cfg, deps: deps, once: sync.Once{}}
 }
 
-func (s *Server) Serve() {
-	ctx := context.Background()
+func Default(cfg *config.Config) *Server {
+	var (
+		logger        = trace.Logger(trace.JSON, cfg.Debug)
+		postgres      = database.MustNew(database.Config{DSN: cfg.Postgres.DSN}, logger)
+		securable     = auth.Secure{}
+		authenticator = auth.NewTokenAuthenticator(postgres)
+		hasher        = secure.NewPasswordHasher()
+		generator     = generate.NewUUID()
+		validator     = validate.NewEmail()
+	)
 
+	return New(cfg, &Dependencies{
+		Database:       postgres,
+		Secure:         securable,
+		Authenticator:  authenticator,
+		PasswordHasher: hasher,
+		UUIDGenerator:  generator,
+		EmailValidator: validator,
+	}, logger)
+}
+
+func (s *Server) Serve(ctx context.Context) {
 	ctx, stop := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
@@ -77,25 +114,22 @@ func (s *Server) Serve() {
 		lis = ex.Critical(lc.Listen(ctx, "tcp", s.config.Server.Address))
 	})
 
+	s.logger.InfoContext(ctx, "listen...", "address", s.config.Server.Address)
+
+	defer s.Stop(ctx)
+
 	go func() {
-		s.tracer.Info(ctx, "listen...", "address", s.config.Server.Address)
-
 		err := s.grpc.Serve(lis)
-		if err != nil {
-			s.tracer.Error(ctx, "listen failure", ex.Unexpected(err))
 
-			stop()
-		}
+		ex.Panic(err)
 	}()
 
 	<-ctx.Done()
-
-	s.tracer.Info(ctx, "shutdown...")
-
-	s.Stop()
 }
 
-func (s *Server) Stop() {
+func (s *Server) Stop(ctx context.Context) {
+	s.logger.InfoContext(ctx, "shutdown...")
+
 	s.grpc.Stop()
 	s.deps.Close()
 }

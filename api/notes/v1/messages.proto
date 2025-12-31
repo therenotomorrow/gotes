@@ -6,6 +6,7 @@ option go_package = "github.com/therenotomorrow/gotes/pkg/api/notes/v1";
 
 import "api/types/id.proto";
 import "google/protobuf/timestamp.proto";
+import "buf/validate/validate.proto";
 
 // Note represents a single note entity.
 message Note {
@@ -49,10 +50,17 @@ message RetrieveNoteResponse {
 // CreateNoteRequest is the request message for creating a new note.
 message CreateNoteRequest {
   // Title of the new note.
-  string title = 1;
+  string title = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 5,
+    (buf.validate.field).string.max_len = 255
+  ];
 
   // Content/body of the new note.
-  string content = 2;
+  string content = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 10
+  ];
 }
 
 // CreateNoteResponse is the response message after creating a note.

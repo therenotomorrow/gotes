@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/therenotomorrow/gotes/internal/api/notes/v1/ports"
+	"github.com/therenotomorrow/gotes/internal/domain"
 	"github.com/therenotomorrow/gotes/internal/domain/entities"
 	"github.com/therenotomorrow/gotes/internal/domain/types/id"
 )
@@ -22,15 +23,19 @@ type CreateNoteInput struct {
 	Content string
 }
 
-func (use *UseCases) CreateNote(ctx context.Context, input *CreateNoteInput) (*entities.Note, error) {
+func (use *UseCases) CreateNote(
+	ctx context.Context,
+	user *entities.User,
+	input *CreateNoteInput,
+) (*entities.Note, error) {
 	note, err := entities.NewNote(input.Title, input.Content)
 	if err != nil {
 		return nil, err
 	}
 
-	err = use.uow.Do(ctx, func(store ports.Store) error {
-		var err error
+	note.SetOwner(user)
 
+	err = use.uow.Do(ctx, func(store ports.Store) error {
 		note, err = store.Notes().SaveNote(ctx, note)
 
 		return err
@@ -40,14 +45,24 @@ func (use *UseCases) CreateNote(ctx context.Context, input *CreateNoteInput) (*e
 }
 
 type DeleteNoteInput struct {
-	ID id.ID
+	ID int64
 }
 
-func (use *UseCases) DeleteNote(ctx context.Context, input *DeleteNoteInput) error {
+func (use *UseCases) DeleteNote(ctx context.Context, user *entities.User, input *DeleteNoteInput) error {
+	ident, err := id.Conv(input.ID)
+	if err != nil {
+		return err
+	}
+
 	return use.uow.Do(ctx, func(store ports.Store) error {
 		repo := store.Notes()
 
-		note, err := repo.GetNote(ctx, input.ID)
+		note, err := repo.GetNote(ctx, ident)
+		if err != nil {
+			return err
+		}
+
+		err = use.permit(user, note)
 		if err != nil {
 			return err
 		}
@@ -56,14 +71,36 @@ func (use *UseCases) DeleteNote(ctx context.Context, input *DeleteNoteInput) err
 	})
 }
 
-func (use *UseCases) ListNotes(ctx context.Context) ([]*entities.Note, error) {
-	return use.store.Notes().GetNotes(ctx)
+func (use *UseCases) ListNotes(ctx context.Context, user *entities.User) ([]*entities.Note, error) {
+	return use.store.Notes().GetNotesByUser(ctx, user)
 }
 
 type RetrieveNoteInput struct {
-	ID id.ID
+	ID int64
 }
 
-func (use *UseCases) RetrieveNote(ctx context.Context, input *RetrieveNoteInput) (*entities.Note, error) {
-	return use.store.Notes().GetNote(ctx, input.ID)
+func (use *UseCases) RetrieveNote(
+	ctx context.Context,
+	user *entities.User,
+	input *RetrieveNoteInput,
+) (*entities.Note, error) {
+	ident, err := id.Conv(input.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	note, err := use.store.Notes().GetNote(ctx, ident)
+	if err != nil {
+		return nil, err
+	}
+
+	return note, use.permit(user, note)
+}
+
+func (use *UseCases) permit(user *entities.User, note *entities.Note) error {
+	if !note.IsOwner(user) {
+		return domain.ErrPermissionDenied
+	}
+
+	return nil
 }
