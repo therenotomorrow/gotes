@@ -1,0 +1,31 @@
+version: "3"
+
+dotenv: ['.env']
+
+includes:
+  code:
+    taskfile: ./.tasks/code.yaml
+  services:
+    taskfile: ./.tasks/services.yaml
+  test:
+    taskfile: ./.tasks/test.yaml
+  tools:
+    taskfile: ./.tasks/tools.yaml
+
+tasks:
+  default:
+    desc: Lists tasks with description of current taskfile
+    cmds:
+      - task --list
+
+  qa:
+    desc: Run all possible generations and linters
+    cmds:
+      - ./.bin/sqlc compile
+      - ./.bin/sqlc vet
+      - ./.bin/easyp lint
+      - task: code:contracts
+      - task: code:sql
+      - task: code:mocks
+      - task: code:align
+      - task: code:lint

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+task qa
+
+git add .

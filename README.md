@@ -34,11 +34,15 @@ go mod tidy
 # check code integrity
 task tools:install qa # see other recipes by calling `task`
 
+# apply migrations
+task services:postgres
+task services:goose -- up
+
 # setup safe development (optional)
 git config --local core.hooksPath .githooks
 ```
 
-## Testing
+### Testing
 
 ```shell
 # run quick checks

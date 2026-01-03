@@ -1,0 +1,8 @@
+# environemnt
+/.idea/
+.go-version
+/.bin/
+.env
+
+# caches
+coverage.out

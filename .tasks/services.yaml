@@ -1,0 +1,40 @@
+version: '3'
+
+env:
+  GOOSE_DRIVER: 'postgres'
+  GOOSE_DBSTRING: '{{.GOTES_POSTGRES_DSN}}'
+  GOOSE_MIGRATION_DIR: '{{.ROOT_DIR}}/tools/sql/migrations'
+
+tasks:
+  postgres:
+    desc: Run a local PostgreSQL using docker
+    vars:
+      DATABASE_NAME: '{{.DATABASE_NAME | default "gotes"}}'
+      DATABASE_USER: '{{.DATABASE_USER | default "gotes"}}'
+      DATABASE_PASSWORD: '{{.DATABASE_PASSWORD | default "gotes"}}'
+      DATABASE_VERSION: '{{.DATABASE_VERSION | default "18"}}'
+    requires:
+      vars: ['DATABASE_NAME', 'DATABASE_USER', 'DATABASE_PASSWORD']
+    cmds:
+      - |
+        docker run -it -p 5432:5432 \
+          -e POSTGRES_DB={{.DATABASE_NAME}} \
+          -e POSTGRES_USER={{.DATABASE_USER}} \
+          -e POSTGRES_PASSWORD={{.DATABASE_PASSWORD}} \
+          -v gotes-postgres:/var/lib/postgresql \
+          postgres:{{.DATABASE_VERSION}} postgres -c log_statement=all
+
+  goose:
+    desc: Run arbitrary commands directly with `goose` (e.g., `goose -- status`)
+    cmds:
+      - ./.bin/goose {{.CLI_ARGS}}
+
+  easyp:
+    desc: Run arbitrary commands directly with `easyp` (e.g., `easyp -- lint`)
+    cmds:
+      - ./.bin/easyp {{.CLI_ARGS}}
+
+  sqlc:
+    desc: Run arbitrary commands directly with `sqlc` (e.g., `sqlc -- lint`)
+    cmds:
+      - ./.bin/sqlc {{.CLI_ARGS}}

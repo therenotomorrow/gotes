@@ -1,0 +1,41 @@
+version: "2"
+overrides:
+  go:
+    overrides:
+      - db_type: "uuid"
+        go_type:
+          import: "github.com/google/uuid"
+          type: "UUID"
+      - db_type: "timestamptz"
+        go_type:
+          import: "time"
+          type: "Time"
+sql:
+  - engine: "postgresql"
+    schema: "tools/sql/schema.sql"
+    queries: "tools/sql/commands"
+    gen:
+      go:
+        package: "commands"
+        out: "internal/storages/postgres/commands"
+        sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true
+        emit_result_struct_pointers: true
+        emit_params_struct_pointers: true
+        omit_unused_structs: true
+        emit_interface: true
+        emit_db_tags: true
+  - engine: "postgresql"
+    schema: "tools/sql/schema.sql"
+    queries: "tools/sql/queries"
+    gen:
+      go:
+        package: "queries"
+        out: "internal/storages/postgres/queries"
+        sql_package: "pgx/v5"
+        emit_pointers_for_null_types: true
+        emit_result_struct_pointers: true
+        emit_params_struct_pointers: true
+        omit_unused_structs: true
+        emit_interface: true
+        emit_db_tags: true

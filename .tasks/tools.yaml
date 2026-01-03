@@ -1,0 +1,120 @@
+version: '3'
+
+env:
+  GOBIN: "{{.ROOT_DIR}}/.bin"
+
+.task_tmpl: &task_tmpl
+  internal: true
+  status:
+    - test -x {{.GOBIN}}/{{.NAME}}
+  generates:
+    - '{{.GOBIN}}/{{.NAME}}'
+
+tasks:
+  golangci-lint:
+    desc: https://github.com/golangci/golangci-lint
+    vars:
+      VERSION: 'v2.7.2'
+      NAME: 'golangci-lint'
+    <<: *task_tmpl
+    cmds:
+      - curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/HEAD/install.sh | sh -s -- -b {{.GOBIN}} {{.VERSION}}
+
+  betteralign:
+    desc: https://github.com/dkorunic/betteralign
+    vars:
+      VERSION: 'v0.8.2'
+      NAME: 'betteralign'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/dkorunic/betteralign/cmd/betteralign@{{.VERSION}}
+
+  protobuf-go:
+    desc: https://pkg.go.dev/google.golang.org/protobuf/cmd/protoc-gen-go
+    vars:
+      VERSION: 'v1.36.11'
+      NAME: 'protoc-gen-go'
+    <<: *task_tmpl
+    cmds:
+      - go install google.golang.org/protobuf/cmd/protoc-gen-go@{{.VERSION}}
+
+  grpc-go:
+    desc: https://pkg.go.dev/google.golang.org/grpc/cmd/protoc-gen-go-grpc
+    vars:
+      VERSION: 'v1.6.0'
+      NAME: 'protoc-gen-go-grpc'
+    <<: *task_tmpl
+    cmds:
+      - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.VERSION}}
+
+  easyp:
+    desc: https://github.com/easyp-tech/easyp
+    vars:
+      VERSION: 'v0.12.0'
+      NAME: 'easyp'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/easyp-tech/easyp/cmd/easyp@{{.VERSION}}
+
+  grpcurl:
+    desc: https://github.com/fullstorydev/grpcurl
+    vars:
+      VERSION: 'v1.9.3'
+      NAME: 'grpcurl'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/fullstorydev/grpcurl/cmd/grpcurl@{{.VERSION}}
+
+  mockery:
+    desc: https://github.com/vektra/mockery
+    vars:
+      VERSION: 'v3.6.1'
+      NAME: 'mockery'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/vektra/mockery/v3@{{.VERSION}}
+
+  sqlc:
+    desc: https://github.com/sqlc-dev/sqlc
+    vars:
+      VERSION: 'v1.30.0'
+      NAME: 'sqlc'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/sqlc-dev/sqlc/cmd/sqlc@{{.VERSION}}
+
+  goose:
+    desc: https://github.com/pressly/goose
+    vars:
+      VERSION: 'v3.26.0'
+      NAME: 'goose'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/pressly/goose/v3/cmd/goose@{{.VERSION}}
+
+  buf:
+    desc: https://github.com/bufbuild/buf
+    vars:
+      VERSION: 'v1.16.0'
+      NAME: 'buf'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/bufbuild/buf/cmd/buf@{{.VERSION}}
+
+  install:
+    desc: Install all required Go development tools
+    silent: true
+    deps:
+      - golangci-lint
+      - betteralign
+      - protobuf-go
+      - grpc-go
+      - easyp
+      - grpcurl
+      - mockery
+      - sqlc
+      - goose
+      - buf
+    cmds:
+      - ./.bin/easyp mod download
+      - echo "All tools are installed into '$GOBIN'"

@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package api.types;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/types";
+
+// ID represents a unique identifier for an entity.
+//
+// Typically used as a wrapper around a numeric value to ensure type safety
+// across different entities.
+message ID {
+  // The numeric value of the ID.
+  int64 value = 1;
+}
