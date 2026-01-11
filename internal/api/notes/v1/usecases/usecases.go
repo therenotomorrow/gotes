@@ -1,4 +1,4 @@
-package v1
+package usecases
 
 import (
 	"context"
@@ -9,12 +9,17 @@ import (
 	"github.com/therenotomorrow/gotes/internal/domain/types/id"
 )
 
+const (
+	ErrNoteNotFound     domain.Error = "note not found"
+	ErrPermissionDenied domain.Error = "permission denied"
+)
+
 type UseCases struct {
 	uow   ports.UnitOfWork
 	store ports.Store
 }
 
-func New(uow ports.UnitOfWork, store ports.Store) *UseCases {
+func NewCases(uow ports.UnitOfWork, store ports.Store) *UseCases {
 	return &UseCases{uow: uow, store: store}
 }
 
@@ -36,7 +41,7 @@ func (use *UseCases) CreateNote(
 	note.SetOwner(user)
 
 	err = use.uow.Do(ctx, func(store ports.Store) error {
-		note, err = store.Notes().SaveNote(ctx, note)
+		note, err = store.Notes.SaveNote(ctx, note)
 
 		return err
 	})
@@ -55,9 +60,7 @@ func (use *UseCases) DeleteNote(ctx context.Context, user *entities.User, input 
 	}
 
 	return use.uow.Do(ctx, func(store ports.Store) error {
-		repo := store.Notes()
-
-		note, err := repo.GetNote(ctx, ident)
+		note, err := store.Notes.GetNote(ctx, ident)
 		if err != nil {
 			return err
 		}
@@ -67,12 +70,8 @@ func (use *UseCases) DeleteNote(ctx context.Context, user *entities.User, input 
 			return err
 		}
 
-		return repo.DeleteNote(ctx, note)
+		return store.Notes.DeleteNote(ctx, note)
 	})
-}
-
-func (use *UseCases) ListNotes(ctx context.Context, user *entities.User) ([]*entities.Note, error) {
-	return use.store.Notes().GetNotesByUser(ctx, user)
 }
 
 type RetrieveNoteInput struct {
@@ -89,17 +88,26 @@ func (use *UseCases) RetrieveNote(
 		return nil, err
 	}
 
-	note, err := use.store.Notes().GetNote(ctx, ident)
+	note, err := use.store.Notes.GetNote(ctx, ident)
 	if err != nil {
 		return nil, err
 	}
 
-	return note, use.permit(user, note)
+	err = use.permit(user, note)
+	if err != nil {
+		return nil, err
+	}
+
+	return note, nil
+}
+
+func (use *UseCases) ListNotes(ctx context.Context, user *entities.User) ([]*entities.Note, error) {
+	return use.store.Notes.GetNotesByUser(ctx, user)
 }
 
 func (use *UseCases) permit(user *entities.User, note *entities.Note) error {
 	if !note.IsOwner(user) {
-		return domain.ErrPermissionDenied
+		return ErrPermissionDenied
 	}
 
 	return nil

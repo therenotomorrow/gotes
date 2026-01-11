@@ -1,4 +1,4 @@
-package v1
+package usecases
 
 import (
 	"context"
@@ -11,11 +11,16 @@ import (
 	"github.com/therenotomorrow/gotes/internal/domain/types/password"
 )
 
+const (
+	ErrUserNotFound     domain.Error = "user not found"
+	ErrPermissionDenied domain.Error = "permission denied"
+)
+
 type UseCases struct {
 	uow ports.UnitOfWork
 }
 
-func New(uow ports.UnitOfWork) *UseCases {
+func NewCases(uow ports.UnitOfWork) *UseCases {
 	return &UseCases{uow: uow}
 }
 
@@ -32,12 +37,11 @@ func (use *UseCases) RegisterUser(ctx context.Context, input *RegisterUserInput)
 	}
 
 	err = use.uow.Do(ctx, func(store ports.Store) error {
-		repo := store.Users()
-		saved, err := repo.GetUserByEmail(ctx, user.Email)
+		saved, err := store.Users.GetUserByEmail(ctx, user.Email)
 
 		switch {
-		case errors.Is(err, domain.ErrUserNotFound):
-			user, err = repo.SaveUser(ctx, user)
+		case errors.Is(err, ErrUserNotFound):
+			user, err = store.Users.SaveUser(ctx, user)
 			if err != nil {
 				return err
 			}
@@ -67,12 +71,11 @@ func (use *UseCases) RefreshToken(ctx context.Context, input *RefreshTokenInput)
 	var user *entities.User
 
 	err = use.uow.Do(ctx, func(store ports.Store) error {
-		repo := store.Users()
-		user, err = repo.GetUserByEmail(ctx, mail)
+		user, err = store.Users.GetUserByEmail(ctx, mail)
 
 		switch {
-		case errors.Is(err, domain.ErrUserNotFound):
-			return domain.ErrPermissionDenied
+		case errors.Is(err, ErrUserNotFound):
+			return ErrPermissionDenied
 		case err != nil:
 			return err
 		}
@@ -84,7 +87,7 @@ func (use *UseCases) RefreshToken(ctx context.Context, input *RefreshTokenInput)
 
 		user.RefreshToken()
 
-		return repo.UpdateUser(ctx, user)
+		return store.Users.UpdateUser(ctx, user)
 	})
 
 	return user, err
@@ -94,7 +97,7 @@ func (use *UseCases) checkPassword(user *entities.User, pass string) error {
 	err := user.Password.Check(pass)
 
 	if errors.Is(err, password.ErrInvalidPassword) {
-		return domain.ErrPermissionDenied
+		return ErrPermissionDenied
 	}
 
 	return err

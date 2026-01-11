@@ -20,12 +20,14 @@ linters:
       enable-all: true
   exclusions:
     rules:
+      - path: _test\.go
+        linters:
+          - exhaustruct
+          - gochecknoglobals
+          - funlen
       - path: config.go
         linters:
           - mnd
-      - text: Mapping
-        linters:
-          - gochecknoglobals
       - path: domain/types
         linters:
           - gochecknoglobals

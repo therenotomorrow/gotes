@@ -16,14 +16,14 @@ import (
 	"github.com/therenotomorrow/gotes/internal/domain/types/email"
 	"github.com/therenotomorrow/gotes/internal/domain/types/password"
 	"github.com/therenotomorrow/gotes/internal/domain/types/uuid"
-	"github.com/therenotomorrow/gotes/internal/services/auth"
-	"github.com/therenotomorrow/gotes/internal/storages/postgres/database"
+	"github.com/therenotomorrow/gotes/internal/services/secure"
+	"github.com/therenotomorrow/gotes/internal/storages/postgres"
 	pbnotesv1 "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
 	pbusersv1 "github.com/therenotomorrow/gotes/pkg/api/users/v1"
 	"github.com/therenotomorrow/gotes/pkg/services/generate"
-	"github.com/therenotomorrow/gotes/pkg/services/secure"
 	"github.com/therenotomorrow/gotes/pkg/services/trace"
 	"github.com/therenotomorrow/gotes/pkg/services/validate"
+	"github.com/therenotomorrow/gotes/pkg/services/vault"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -60,7 +60,7 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 			tracer.UnaryServerInterceptor,
 			LoggingUnaryServerInterceptor(tracer),
 			validate.UnaryServerInterceptor(validator),
-			auth.UnaryServerInterceptor(deps.Authenticator, []string{
+			secure.UnaryServerInterceptor(deps.Authenticator, []string{
 				"/api.users.v1.UsersService/RegisterUser",
 				"/api.users.v1.UsersService/RefreshToken",
 			}...),
@@ -71,8 +71,8 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 	uuid.SetGenerator(deps.UUIDGenerator)
 	password.SetHasher(deps.PasswordHasher)
 
-	pbnotesv1.RegisterNotesServiceServer(server, notesv1.Service(deps.Secure, deps.Database, logger))
-	pbusersv1.RegisterUsersServiceServer(server, usersv1.Service(deps.Database, logger))
+	pbnotesv1.RegisterNotesServiceServer(server, notesv1.NewService(deps.Database, logger))
+	pbusersv1.RegisterUsersServiceServer(server, usersv1.New(deps.Database, logger))
 
 	if cfg.Debug {
 		reflection.Register(server)
@@ -82,23 +82,15 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 }
 
 func Default(cfg *config.Config) *Server {
-	var (
-		logger        = trace.Logger(trace.JSON, cfg.Debug)
-		postgres      = database.MustNew(database.Config{DSN: cfg.Postgres.DSN}, logger)
-		securable     = auth.Secure{}
-		authenticator = auth.NewTokenAuthenticator(postgres)
-		hasher        = secure.NewPasswordHasher()
-		generator     = generate.NewUUID()
-		validator     = validate.NewEmail()
-	)
+	logger := trace.Logger(trace.JSON, cfg.Debug)
+	database := postgres.MustNew(postgres.Config{DSN: cfg.Postgres.DSN}, logger)
 
 	return New(cfg, &Dependencies{
-		Database:       postgres,
-		Secure:         securable,
-		Authenticator:  authenticator,
-		PasswordHasher: hasher,
-		UUIDGenerator:  generator,
-		EmailValidator: validator,
+		Database:       database,
+		Authenticator:  secure.NewTokenAuthenticator(database),
+		PasswordHasher: vault.NewPasswordHasher(),
+		UUIDGenerator:  generate.NewUUID(),
+		EmailValidator: validate.NewEmail(),
 	}, logger)
 }
 

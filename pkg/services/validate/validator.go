@@ -27,14 +27,14 @@ func RegisterPostgresDSN(v *validator.Validate) error {
 	return err
 }
 
-var singleton = sync.OnceValue(validate)
+var validate = sync.OnceValue(newValidate)
 
 var (
-	Var    = singleton().Var
-	Struct = singleton().Struct
+	Var    = validate().Var
+	Struct = validate().Struct
 )
 
-func validate() *validator.Validate {
+func newValidate() *validator.Validate {
 	val := validator.New()
 	err := errors.Join(RegisterPostgresDSN(val))
 

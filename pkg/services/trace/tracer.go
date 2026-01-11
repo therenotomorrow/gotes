@@ -25,7 +25,7 @@ func New(logger *slog.Logger) *Tracer {
 
 func Service(service string, logger *slog.Logger) *Tracer {
 	tracer := New(logger)
-	tracer.logger = logger.With("service", service)
+	tracer.logger = tracer.logger.With("service", service)
 
 	return tracer
 }

@@ -13,8 +13,12 @@ type UsersRepository interface {
 	UpdateUser(ctx context.Context, user *entities.User) error
 }
 
-type Store interface {
-	Users() UsersRepository
+type Store struct {
+	Users UsersRepository
+}
+
+type StoreProvider interface {
+	Provide(ctx context.Context) Store
 }
 
 type UnitOfWork interface {

@@ -1,4 +1,4 @@
-package auth
+package secure
 
 import (
 	"context"
@@ -19,15 +19,15 @@ const (
 )
 
 type TokenAuthenticator struct {
-	database postgres.Database
+	db postgres.Database
 }
 
-func NewTokenAuthenticator(database postgres.Database) *TokenAuthenticator {
-	return &TokenAuthenticator{database: database}
+func NewTokenAuthenticator(db postgres.Database) *TokenAuthenticator {
+	return &TokenAuthenticator{db: db}
 }
 
 func (a *TokenAuthenticator) Authenticate(ctx context.Context, token string) (*entities.User, error) {
-	querier := queries.New(a.database.Conn(ctx))
+	querier := queries.New(a.db.Conn(ctx))
 
 	tkn, err := domuuid.Parse(token)
 	if err != nil {

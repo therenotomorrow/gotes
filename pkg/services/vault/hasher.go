@@ -1,4 +1,4 @@
-package secure
+package vault
 
 import (
 	"crypto/rand"

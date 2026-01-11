@@ -14,10 +14,14 @@ type NotesRepository interface {
 	GetNotesByUser(ctx context.Context, user *entities.User) ([]*entities.Note, error)
 }
 
-type Store interface {
-	Notes() NotesRepository
+type Store struct {
+	Notes NotesRepository
+}
+
+type StoreProvider interface {
+	Provide(ctx context.Context) Store
 }
 
 type UnitOfWork interface {
-	Do(ctx context.Context, unit func(store Store) error) error
+	Do(ctx context.Context, work func(store Store) error) error
 }

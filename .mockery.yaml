@@ -3,17 +3,23 @@ filename: "{{ .InterfaceName | lower }}.mock.go"
 packages:
   github.com/therenotomorrow/gotes/internal/api/notes/v1/ports:
     config:
-      pkgname: adapters
-      dir: internal/api/notes/v1/adapters
+      pkgname: mocks
+      dir: internal/api/notes/v1/adapters/mocks
     interfaces:
-      NotesRepository: {}
-      UnitOfWork: {}
-      Store: {}
+      NotesRepository: { }
+      StoreProvider: { }
+      UnitOfWork: { }
   github.com/therenotomorrow/gotes/internal/api/users/v1/ports:
     config:
-      pkgname: adapters
-      dir: internal/api/users/v1/adapters
+      pkgname: mocks
+      dir: internal/api/users/v1/adapters/mocks
     interfaces:
-      UsersRepository: {}
-      UnitOfWork: {}
-      Store: {}
+      UsersRepository: { }
+      StoreProvider: { }
+      UnitOfWork: { }
+  github.com/therenotomorrow/gotes/internal/storages/postgres:
+    config:
+      pkgname: mocks
+      dir: internal/storages/postgres/mocks
+    interfaces:
+      DBTX: { }

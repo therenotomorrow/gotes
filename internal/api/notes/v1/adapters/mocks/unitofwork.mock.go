@@ -2,7 +2,7 @@
 // github.com/vektra/mockery
 // template: testify
 
-package adapters
+package mocks
 
 import (
 	"context"
@@ -39,8 +39,8 @@ func (_m *MockUnitOfWork) EXPECT() *MockUnitOfWork_Expecter {
 }
 
 // Do provides a mock function for the type MockUnitOfWork
-func (_mock *MockUnitOfWork) Do(ctx context.Context, unit func(store ports.Store) error) error {
-	ret := _mock.Called(ctx, unit)
+func (_mock *MockUnitOfWork) Do(ctx context.Context, work func(store ports.Store) error) error {
+	ret := _mock.Called(ctx, work)
 
 	if len(ret) == 0 {
 		panic("no return value specified for Do")
@@ -48,7 +48,7 @@ func (_mock *MockUnitOfWork) Do(ctx context.Context, unit func(store ports.Store
 
 	var r0 error
 	if returnFunc, ok := ret.Get(0).(func(context.Context, func(store ports.Store) error) error); ok {
-		r0 = returnFunc(ctx, unit)
+		r0 = returnFunc(ctx, work)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -62,12 +62,12 @@ type MockUnitOfWork_Do_Call struct {
 
 // Do is a helper method to define mock.On call
 //   - ctx context.Context
-//   - unit func(store ports.Store) error
-func (_e *MockUnitOfWork_Expecter) Do(ctx interface{}, unit interface{}) *MockUnitOfWork_Do_Call {
-	return &MockUnitOfWork_Do_Call{Call: _e.mock.On("Do", ctx, unit)}
+//   - work func(store ports.Store) error
+func (_e *MockUnitOfWork_Expecter) Do(ctx interface{}, work interface{}) *MockUnitOfWork_Do_Call {
+	return &MockUnitOfWork_Do_Call{Call: _e.mock.On("Do", ctx, work)}
 }
 
-func (_c *MockUnitOfWork_Do_Call) Run(run func(ctx context.Context, unit func(store ports.Store) error)) *MockUnitOfWork_Do_Call {
+func (_c *MockUnitOfWork_Do_Call) Run(run func(ctx context.Context, work func(store ports.Store) error)) *MockUnitOfWork_Do_Call {
 	_c.Call.Run(func(args mock.Arguments) {
 		var arg0 context.Context
 		if args[0] != nil {
@@ -90,7 +90,7 @@ func (_c *MockUnitOfWork_Do_Call) Return(err error) *MockUnitOfWork_Do_Call {
 	return _c
 }
 
-func (_c *MockUnitOfWork_Do_Call) RunAndReturn(run func(ctx context.Context, unit func(store ports.Store) error) error) *MockUnitOfWork_Do_Call {
+func (_c *MockUnitOfWork_Do_Call) RunAndReturn(run func(ctx context.Context, work func(store ports.Store) error) error) *MockUnitOfWork_Do_Call {
 	_c.Call.Return(run)
 	return _c
 }

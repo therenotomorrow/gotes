@@ -1,4 +1,4 @@
-package adapters
+package postgres
 
 import (
 	"context"
@@ -6,8 +6,7 @@ import (
 	"errors"
 
 	"github.com/therenotomorrow/ex"
-	"github.com/therenotomorrow/gotes/internal/api/notes/v1/ports"
-	"github.com/therenotomorrow/gotes/internal/domain"
+	"github.com/therenotomorrow/gotes/internal/api/notes/v1/usecases"
 	"github.com/therenotomorrow/gotes/internal/domain/entities"
 	"github.com/therenotomorrow/gotes/internal/domain/types/id"
 	"github.com/therenotomorrow/gotes/internal/storages/postgres"
@@ -40,7 +39,7 @@ func (r *NotesRepository) GetNote(ctx context.Context, ident id.ID) (*entities.N
 
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
-		return nil, domain.ErrNoteNotFound
+		return nil, usecases.ErrNoteNotFound
 	case err != nil:
 		return nil, ex.Unexpected(err)
 	}
@@ -61,33 +60,4 @@ func (r *NotesRepository) DeleteNote(ctx context.Context, note *entities.Note) e
 	err := r.commands.DeleteNote(ctx, note.ID.Value())
 
 	return ex.Unexpected(err)
-}
-
-type Store struct {
-	notes *NotesRepository
-}
-
-func NewStore(dbtx postgres.DBTX) *Store {
-	return &Store{notes: NewNotesRepository(dbtx)}
-}
-
-func (s *Store) Notes() ports.NotesRepository {
-	return s.notes
-}
-
-type UnitOfWork struct {
-	database postgres.Database
-}
-
-func NewUnitOfWork(database postgres.Database) *UnitOfWork {
-	return &UnitOfWork{database: database}
-}
-
-func (u *UnitOfWork) Do(ctx context.Context, work func(store ports.Store) error) error {
-	return u.database.Tx(ctx, func(ctx context.Context) error {
-		dbtx := u.database.Conn(ctx)
-		store := NewStore(dbtx)
-
-		return work(store)
-	})
 }

@@ -1,4 +1,4 @@
-package adapters
+package postgres
 
 import (
 	"context"
@@ -6,8 +6,7 @@ import (
 	"errors"
 
 	"github.com/therenotomorrow/ex"
-	"github.com/therenotomorrow/gotes/internal/api/users/v1/ports"
-	"github.com/therenotomorrow/gotes/internal/domain"
+	"github.com/therenotomorrow/gotes/internal/api/users/v1/usecases"
 	"github.com/therenotomorrow/gotes/internal/domain/entities"
 	"github.com/therenotomorrow/gotes/internal/domain/types/email"
 	"github.com/therenotomorrow/gotes/internal/domain/types/id"
@@ -41,7 +40,7 @@ func (u *UsersRepository) GetUserByEmail(ctx context.Context, mail email.Email) 
 
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
-		return nil, domain.ErrUserNotFound
+		return nil, usecases.ErrUserNotFound
 	case err != nil:
 		return nil, ex.Unexpected(err)
 	}
@@ -53,33 +52,4 @@ func (u *UsersRepository) UpdateUser(ctx context.Context, user *entities.User) e
 	err := u.commands.UpdateUser(ctx, commands.NewUpdateUserParams(user))
 
 	return ex.Unexpected(err)
-}
-
-type Store struct {
-	users *UsersRepository
-}
-
-func NewStore(dbtx postgres.DBTX) *Store {
-	return &Store{users: NewUsersRepository(dbtx)}
-}
-
-func (s *Store) Users() ports.UsersRepository {
-	return s.users
-}
-
-type UnitOfWork struct {
-	database postgres.Database
-}
-
-func NewUnitOfWork(database postgres.Database) *UnitOfWork {
-	return &UnitOfWork{database: database}
-}
-
-func (u *UnitOfWork) Do(ctx context.Context, work func(store ports.Store) error) error {
-	return u.database.Tx(ctx, func(ctx context.Context) error {
-		cqrs := u.database.Conn(ctx)
-		store := NewStore(cqrs)
-
-		return work(store)
-	})
 }

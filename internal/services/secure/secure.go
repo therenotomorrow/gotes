@@ -1,4 +1,4 @@
-package auth
+package secure
 
 import (
 	"context"
@@ -16,17 +16,15 @@ const (
 	errMissingUserInContext ex.Error = "missing user in context"
 )
 
-type Securable interface {
-	User(ctx context.Context) *entities.User
-}
-
-type Secure struct{}
-
-func (s Secure) User(ctx context.Context) *entities.User {
+func User(ctx context.Context) (*entities.User, error) {
 	user, ok := ctx.Value(secureKey).(*entities.User)
 	if !ok {
-		ex.Panic(errMissingUserInContext)
+		return nil, ErrUnauthorized.Because(errMissingUserInContext)
 	}
 
-	return user
+	return user, nil
+}
+
+func NewUserContext(ctx context.Context, user *entities.User) context.Context {
+	return context.WithValue(ctx, secureKey, user)
 }
