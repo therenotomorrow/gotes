@@ -1,37 +1,35 @@
 package email
 
-import (
-	"github.com/therenotomorrow/ex"
-	"github.com/therenotomorrow/gotes/pkg/validate"
-)
-
-const (
-	ErrInvalidEmail ex.Error = "invalid email"
-)
-
-var zeroEmail Email
-
 type Email struct {
 	value string
 }
 
 func New(val string) Email {
-	return ex.Critical(Parse(val))
+	email, err := Parse(val)
+	if err != nil {
+		panic(err)
+	}
+
+	return email
 }
 
 func Parse(raw string) (Email, error) {
-	err := validate.Var(raw, "email")
-	if err != nil {
-		return zeroEmail, ErrInvalidEmail.Because(err)
+	valid, err := validator.Validate(raw)
+
+	switch {
+	case err != nil:
+		return Email{value: ""}, err
+	case !valid:
+		return Email{value: ""}, ErrInvalidEmail
 	}
 
 	return Email{value: raw}, nil
 }
 
-func (e Email) Value() string {
-	return e.value
+func (e Email) Equals(o Email) bool {
+	return e.value == o.value
 }
 
-func (e Email) String() string {
+func (e Email) Value() string {
 	return e.value
 }

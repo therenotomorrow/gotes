@@ -7,6 +7,7 @@
 package v1
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	types "github.com/therenotomorrow/gotes/pkg/api/types"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
@@ -468,7 +469,7 @@ var File_api_notes_v1_messages_proto protoreflect.FileDescriptor
 
 const file_api_notes_v1_messages_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/notes/v1/messages.proto\x12\fapi.notes.v1\x1a\x12api/types/id.proto\x1a\x1fgoogle/protobuf/timestamp.proto\"\xcb\x01\n" +
+	"\x1bapi/notes/v1/messages.proto\x12\fapi.notes.v1\x1a\x12api/types/id.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bbuf/validate/validate.proto\"\xcb\x01\n" +
 	"\x04Note\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\v2\r.api.types.IDR\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x18\n" +
@@ -483,10 +484,13 @@ const file_api_notes_v1_messages_proto_rawDesc = "" +
 	"\x13RetrieveNoteRequest\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\v2\r.api.types.IDR\x02id\">\n" +
 	"\x14RetrieveNoteResponse\x12&\n" +
-	"\x04note\x18\x01 \x01(\v2\x12.api.notes.v1.NoteR\x04note\"C\n" +
-	"\x11CreateNoteRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\"<\n" +
+	"\x04note\x18\x01 \x01(\v2\x12.api.notes.v1.NoteR\x04note\"^\n" +
+	"\x11CreateNoteRequest\x12#\n" +
+	"\x05title\x18\x01 \x01(\tB\r\xbaH\n" +
+	"\xc8\x01\x01r\x05\x10\x05\x18\xff\x01R\x05title\x12$\n" +
+	"\acontent\x18\x02 \x01(\tB\n" +
+	"\xbaH\a\xc8\x01\x01r\x02\x10\n" +
+	"R\acontent\"<\n" +
 	"\x12CreateNoteResponse\x12&\n" +
 	"\x04note\x18\x01 \x01(\v2\x12.api.notes.v1.NoteR\x04note\"2\n" +
 	"\x11DeleteNoteRequest\x12\x1d\n" +

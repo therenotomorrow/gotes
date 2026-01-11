@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package api.users.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/users/v1";
+
+import "api/users/v1/messages.proto";
+
+// UsersService provides user registration and authentication-related operations.
+service UsersService {
+  // RegisterUser registers a new user in the system.
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+
+  // RefreshToken refreshes an access token using a valid refresh token.
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+}

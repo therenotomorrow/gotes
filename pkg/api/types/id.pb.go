@@ -7,6 +7,7 @@
 package types
 
 import (
+	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -74,9 +75,10 @@ var File_api_types_id_proto protoreflect.FileDescriptor
 
 const file_api_types_id_proto_rawDesc = "" +
 	"\n" +
-	"\x12api/types/id.proto\x12\tapi.types\"\x1a\n" +
-	"\x02ID\x12\x14\n" +
-	"\x05value\x18\x01 \x01(\x03R\x05valueB0Z.github.com/therenotomorrow/gotes/pkg/api/typesb\x06proto3"
+	"\x12api/types/id.proto\x12\tapi.types\x1a\x1bbuf/validate/validate.proto\"&\n" +
+	"\x02ID\x12 \n" +
+	"\x05value\x18\x01 \x01(\x03B\n" +
+	"\xbaH\a\xc8\x01\x01\"\x02 \x00R\x05valueB0Z.github.com/therenotomorrow/gotes/pkg/api/typesb\x06proto3"
 
 var (
 	file_api_types_id_proto_rawDescOnce sync.Once

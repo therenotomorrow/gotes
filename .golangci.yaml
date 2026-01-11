@@ -8,37 +8,35 @@ linters:
     # useless: decide to not use it
     - revive
     - depguard
+    - ireturn
     - wrapcheck
   settings:
     varnamelen:
       ignore-names:
         - id
+        - st
         - tx
     gocritic:
       enable-all: true
-    ireturn:
-      allow:
-        - error
-        - generic
-        - anon
-        - stdlib
-        - .*(or|er)$
-        - v5\.Tx$
-        - .*Repository$
   exclusions:
     rules:
-      - path: domain/types
+      - path: _test\.go
         linters:
-        - gochecknoglobals
-      - path: validate.go
-        linters:
+          - exhaustruct
           - gochecknoglobals
-      - text: Mapping
-        linters:
-          - gochecknoglobals
+          - funlen
       - path: config.go
         linters:
           - mnd
+      - path: domain/types
+        linters:
+          - gochecknoglobals
+      - path: validator.go
+        linters:
+          - gochecknoglobals
+      - path: hasher.go
+        linters:
+          - makezero
 
 formatters:
   enable:

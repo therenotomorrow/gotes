@@ -2,39 +2,32 @@ package postgres
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2"
+	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/therenotomorrow/ex"
-	"github.com/therenotomorrow/gotes/internal/storages/postgres/commands"
-	"github.com/therenotomorrow/gotes/internal/storages/postgres/queries"
-	"github.com/therenotomorrow/gotes/pkg/tracer"
-	"github.com/therenotomorrow/gotes/pkg/validate"
+	"github.com/therenotomorrow/gotes/pkg/services/trace"
+	"github.com/therenotomorrow/gotes/pkg/services/validate"
 )
 
-type txCtx string
-
 const (
-	txKey txCtx = "tx"
-
-	ErrTxError       ex.Error = "transaction error"
 	ErrInvalidConfig ex.Error = "invalid config"
 )
 
 type Config struct {
-	Logger *slog.Logger
-	DSN    string `json:"dsn" validate:"required,postgres_dsn"`
+	DSN string `json:"dsn" validate:"required,postgres_dsn"`
 }
 
-type Database struct {
+type Postgres struct {
+	trm    *manager.Manager
+	ctx    *pgxv5.CtxGetter
 	pool   *pgxpool.Pool
-	tracer *tracer.Tracer
 	config Config
 }
 
-func New(cfg Config) (*Database, error) {
+func New(cfg Config, logger *slog.Logger) (*Postgres, error) {
 	err := validate.Struct(cfg)
 	if err != nil {
 		return nil, ErrInvalidConfig.Because(err)
@@ -45,66 +38,41 @@ func New(cfg Config) (*Database, error) {
 		return nil, ErrInvalidConfig.Because(err)
 	}
 
-	return &Database{
-		config: cfg,
-		pool:   pool,
-		tracer: tracer.Service("postgres", cfg.Logger),
-	}, nil
+	tracer := trace.Service("postgres", logger)
+	manOpts := []manager.Opt{
+		manager.WithLog(log(func(ctx context.Context, msg string) { tracer.Warning(ctx, msg) })),
+	}
+
+	trm, err := manager.New(pgxv5.NewDefaultFactory(pool), manOpts...)
+	if err != nil {
+		return nil, ErrInvalidConfig.Because(err)
+	}
+
+	ctx := pgxv5.DefaultCtxGetter
+
+	return &Postgres{trm: trm, ctx: ctx, config: cfg, pool: pool}, nil
 }
 
-func MustNew(cfg Config) *Database {
-	db, err := New(cfg)
+func MustNew(cfg Config, logger *slog.Logger) *Postgres {
+	db, err := New(cfg, logger)
 
 	return ex.Critical(db, err)
 }
 
-func (db *Database) Tx(ctx context.Context, call func(ctx context.Context) error) (err error) {
-	tx, ok := ctx.Value(txKey).(pgx.Tx)
-	if ok {
-		return call(ctx)
-	}
-
-	tx, err = db.pool.Begin(ctx)
-	if err != nil {
-		return ErrTxError.Because(err)
-	}
-
-	defer func() {
-		var txErr error
-
-		if err != nil {
-			txErr = tx.Rollback(ctx)
-		} else {
-			txErr = tx.Commit(ctx)
-		}
-
-		if txErr != nil {
-			db.tracer.Error(ctx, "transaction failed", txErr)
-
-			err = errors.Join(err, ErrTxError.Because(txErr))
-		}
-	}()
-
-	return call(context.WithValue(ctx, txKey, tx))
+func (db *Postgres) Tx(ctx context.Context, fn func(ctx context.Context) error) error {
+	return db.trm.Do(ctx, fn)
 }
 
-func (db *Database) Close() {
+func (db *Postgres) Conn(ctx context.Context) DBTX {
+	return db.ctx.DefaultTrOrDB(ctx, db.pool)
+}
+
+func (db *Postgres) Close() {
 	db.pool.Close()
 }
 
-type CQRS struct {
-	Commands commands.Querier
-	Queries  queries.Querier
-}
+type log func(ctx context.Context, msg string)
 
-func (db *Database) CQRS(ctx context.Context) *CQRS {
-	cmds := commands.New(db.pool)
-	query := queries.New(db.pool)
-
-	if tx, ok := ctx.Value(txKey).(pgx.Tx); ok {
-		cmds = cmds.WithTx(tx)
-		query = query.WithTx(tx)
-	}
-
-	return &CQRS{Commands: cmds, Queries: query}
+func (l log) Warning(ctx context.Context, msg string) {
+	l(ctx, msg)
 }

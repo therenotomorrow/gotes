@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package api.users.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/users/v1";
+
+import "api/types/id.proto";
+import "buf/validate/validate.proto";
+
+// User represents a single user entity.
+message User {
+  // Unique identifier of the user.
+  api.types.ID id = 1;
+
+  // Display name of the user.
+  string name = 2;
+
+  // Email address of the user.
+  string email = 3;
+
+  // Authentication token associated with the user.
+  string token = 4;
+}
+
+// RegisterUserRequest is the request message for user registration.
+message RegisterUserRequest {
+  // Display name of the new user.
+  string name = 1;
+
+  // Email address used for user identification and login.
+  string email = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.email = true
+  ];
+
+  // Plain-text password provided during registration.
+  //
+  // This value is never stored directly and is expected to be
+  // securely hashed by the server.
+  string password = 3 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 8
+  ];
+}
+
+// RegisterUserResponse is the response message after successful user registration.
+message RegisterUserResponse {
+  // The registered user with generated ID and authentication token.
+  User user = 1;
+}
+
+// RefreshTokenRequest is the request message for refreshing an authentication token.
+message RefreshTokenRequest {
+  // Email address associated with the user.
+  string email = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.email = true
+  ];
+
+  // Plain-text password used to re-authenticate the user.
+  string password = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 8
+  ];
+}
+
+// RefreshTokenResponse is the response message after refreshing an authentication token.
+message RefreshTokenResponse {
+  // The user with a newly issued authentication token.
+  User user = 1;
+}

@@ -4,11 +4,16 @@ package api.types;
 
 option go_package = "github.com/therenotomorrow/gotes/pkg/api/types";
 
+import "buf/validate/validate.proto";
+
 // ID represents a unique identifier for an entity.
 //
 // Typically used as a wrapper around a numeric value to ensure type safety
 // across different entities.
 message ID {
   // The numeric value of the ID.
-  int64 value = 1;
+  int64 value = 1 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).int64.gt = 0
+  ];
 }

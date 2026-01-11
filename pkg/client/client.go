@@ -1,17 +1,23 @@
 package client
 
 import (
+	"context"
 	"crypto/tls"
 
+	"buf.build/go/protovalidate"
 	"github.com/therenotomorrow/ex"
-	pb "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
-	"github.com/therenotomorrow/gotes/pkg/validate"
+	notesv1 "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
+	usersv1 "github.com/therenotomorrow/gotes/pkg/api/users/v1"
+	"github.com/therenotomorrow/gotes/pkg/services/validate"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/metadata"
 )
 
 const (
+	authKey = "authorization"
+
 	ErrInvalidConfig ex.Error = "invalid config"
 )
 
@@ -21,10 +27,10 @@ type Config struct {
 }
 
 type Client struct {
-	pb.NotesServiceClient
+	notesv1.NotesServiceClient
+	usersv1.UsersServiceClient
 
-	conn *grpc.ClientConn
-
+	conn   *grpc.ClientConn
 	config Config
 }
 
@@ -34,30 +40,48 @@ func New(cfg Config, options ...grpc.DialOption) (*Client, error) {
 		return nil, ErrInvalidConfig.Because(err)
 	}
 
+	validator, err := protovalidate.New()
+	if err != nil {
+		return nil, ErrInvalidConfig.Because(err)
+	}
+
 	creds := insecure.NewCredentials()
 	if cfg.Secure {
 		creds = credentials.NewTLS(new(tls.Config))
 	}
 
-	options = append(options, grpc.WithTransportCredentials(creds))
+	options = append(options,
+		grpc.WithTransportCredentials(creds),
+		grpc.WithChainUnaryInterceptor(
+			validate.UnaryClientInterceptor(validator),
+		),
+	)
 
 	conn, err := grpc.NewClient(cfg.Address, options...)
 	if err != nil {
-		return nil, ex.Unexpected(err)
+		return nil, ErrInvalidConfig.Because(err)
 	}
 
-	client := pb.NewNotesServiceClient(conn)
-
-	return &Client{NotesServiceClient: client, conn: conn, config: cfg}, nil
+	return &Client{
+		NotesServiceClient: notesv1.NewNotesServiceClient(conn),
+		UsersServiceClient: usersv1.NewUsersServiceClient(conn),
+		conn:               conn,
+		config:             cfg,
+	}, nil
 }
 
 func MustNew(cfg Config, options ...grpc.DialOption) *Client {
-	client, err := New(cfg, options...)
-	ex.Panic(err)
+	cli, err := New(cfg, options...)
 
-	return client
+	return ex.Critical(cli, err)
+}
+
+func (c *Client) Authenticate(ctx context.Context, token string) context.Context {
+	return metadata.AppendToOutgoingContext(ctx, authKey, token)
 }
 
 func (c *Client) Close() {
-	_ = c.conn.Close()
+	err := c.conn.Close()
+
+	ex.Skip(err)
 }

@@ -1,41 +1,17 @@
 package v1
 
 import (
+	"context"
+
 	"github.com/therenotomorrow/ex"
-	"github.com/therenotomorrow/gotes/internal/domain"
+	"github.com/therenotomorrow/gotes/internal/api/notes/v1/usecases"
 	"github.com/therenotomorrow/gotes/internal/domain/entities"
-	"github.com/therenotomorrow/gotes/internal/domain/types/id"
+	"github.com/therenotomorrow/gotes/internal/services/secure"
 	pb "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
 	typespb "github.com/therenotomorrow/gotes/pkg/api/types"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
-
-func UnmarshalRetrieveNoteRequest(request *pb.RetrieveNoteRequest) (*RetrieveNoteInput, error) {
-	ident, err := id.Conv(request.GetId().GetValue())
-	if err != nil {
-		return nil, err
-	}
-
-	return &RetrieveNoteInput{ID: ident}, nil
-}
-
-func UnmarshalDeleteNoteRequest(request *pb.DeleteNoteRequest) (*DeleteNoteInput, error) {
-	ident, err := id.Conv(request.GetId().GetValue())
-	if err != nil {
-		return nil, err
-	}
-
-	return &DeleteNoteInput{ID: ident}, nil
-}
-
-func UnmarshalCreateNoteRequest(request *pb.CreateNoteRequest) *CreateNoteInput {
-	return &CreateNoteInput{
-		Title:   request.GetTitle(),
-		Content: request.GetContent(),
-	}
-}
 
 func MarshalNote(note *entities.Note) *pb.Note {
 	return &pb.Note{
@@ -56,29 +32,38 @@ func MarshalNotes(notes []*entities.Note) []*pb.Note {
 	return pbNotes
 }
 
-var errorToCodeMapping = map[error]codes.Code{
-	entities.ErrEmptyTitle:   codes.InvalidArgument,
-	entities.ErrEmptyName:    codes.InvalidArgument,
-	entities.ErrEmptyContent: codes.InvalidArgument,
-	id.ErrNegativeID:         codes.InvalidArgument,
-	domain.ErrNoteNotFound:   codes.NotFound,
-	ex.ErrUnexpected:         codes.Internal,
+type ErrorMarshaler struct {
+	errorToCode      map[error]codes.Code
+	errorToErrorCode map[error]typespb.ErrorCode
 }
 
-func MarshalError(err error) error {
-	code, ok := errorToCodeMapping[err]
-	if !ok {
-		code = codes.Unknown
+func NewErrorMarshaler() *ErrorMarshaler {
+	return &ErrorMarshaler{
+		errorToCode: map[error]codes.Code{
+			usecases.ErrNoteNotFound:     codes.NotFound,
+			usecases.ErrPermissionDenied: codes.PermissionDenied,
+			context.Canceled:             codes.Canceled,
+			ex.ErrUnexpected:             codes.Internal,
+			secure.ErrUnauthorized:       codes.Unauthenticated,
+		},
+		errorToErrorCode: map[error]typespb.ErrorCode{
+			usecases.ErrNoteNotFound:     typespb.ErrorCode_ERROR_CODE_ENTITY_NOT_FOUND,
+			usecases.ErrPermissionDenied: typespb.ErrorCode_ERROR_CODE_PERMISSION_DENIED,
+			context.Canceled:             typespb.ErrorCode_ERROR_CODE_INTERNAL,
+			ex.ErrUnexpected:             typespb.ErrorCode_ERROR_CODE_INTERNAL,
+			secure.ErrUnauthorized:       typespb.ErrorCode_ERROR_CODE_PERMISSION_DENIED,
+		},
 	}
+}
 
-	text := err.Error()
-	if code == codes.Internal {
-		text = "internal error"
-	}
+func (e *ErrorMarshaler) Code(err error) (codes.Code, bool) {
+	code, ok := e.errorToCode[err]
 
-	if code == codes.Unknown {
-		text = "unknown error"
-	}
+	return code, ok
+}
 
-	return status.Error(code, text)
+func (e *ErrorMarshaler) ErrorCode(err error) (typespb.ErrorCode, bool) {
+	errCode, ok := e.errorToErrorCode[err]
+
+	return errCode, ok
 }
