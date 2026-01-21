@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package api.metrics.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/metrics/v1";
+
+// UploadMetricsRequest is the request message for uploading client-side metrics.
+message UploadMetricsRequest {
+  // Total number of requests performed by the client.
+  int64 requests = 1;
+
+  // Total number of errors encountered during requests.
+  int64 errors = 2;
+}
+
+// UploadMetricsResponse is the response message after processing metrics.
+message UploadMetricsResponse {
+  // Total accumulated number of requests performed by the client.
+  int64 total = 1;
+
+  // Calculated error rate (errors divided by total requests).
+  double error_rate = 3;
+}

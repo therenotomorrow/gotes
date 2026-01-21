@@ -32,6 +32,34 @@ func MarshalNotes(notes []*entities.Note) []*pb.Note {
 	return pbNotes
 }
 
+func MarshalUnread(unread int32) *pb.SubscribeToEventsResponse_Unread {
+	return &pb.SubscribeToEventsResponse_Unread{
+		Unread: &pb.Unread{Events: unread},
+	}
+}
+
+func MarshalEvent(event *entities.Event) *pb.SubscribeToEventsResponse_Event {
+	var eventType pb.EventType
+
+	switch event.EventType {
+	case entities.EventTypeCreated:
+		eventType = pb.EventType_EVENT_TYPE_CREATED
+	case entities.EventTypeDeleted:
+		eventType = pb.EventType_EVENT_TYPE_DELETED
+	default:
+		eventType = pb.EventType_EVENT_TYPE_UNKNOWN
+	}
+
+	return &pb.SubscribeToEventsResponse_Event{
+		Event: &pb.Event{
+			Id:        event.ID.Value(),
+			Type:      eventType,
+			NoteId:    &typespb.ID{Value: event.Note.ID.Value()},
+			EventTime: timestamppb.New(event.EventTime),
+		},
+	}
+}
+
 type ErrorMarshaler struct {
 	errorToCode      map[error]codes.Code
 	errorToErrorCode map[error]typespb.ErrorCode
@@ -45,6 +73,7 @@ func NewErrorMarshaler() *ErrorMarshaler {
 			context.Canceled:             codes.Canceled,
 			ex.ErrUnexpected:             codes.Internal,
 			secure.ErrUnauthorized:       codes.Unauthenticated,
+			ErrSend:                      codes.Unavailable,
 		},
 		errorToErrorCode: map[error]typespb.ErrorCode{
 			usecases.ErrNoteNotFound:     typespb.ErrorCode_ERROR_CODE_ENTITY_NOT_FOUND,
@@ -52,6 +81,7 @@ func NewErrorMarshaler() *ErrorMarshaler {
 			context.Canceled:             typespb.ErrorCode_ERROR_CODE_INTERNAL,
 			ex.ErrUnexpected:             typespb.ErrorCode_ERROR_CODE_INTERNAL,
 			secure.ErrUnauthorized:       typespb.ErrorCode_ERROR_CODE_PERMISSION_DENIED,
+			ErrSend:                      typespb.ErrorCode_ERROR_CODE_INTERNAL,
 		},
 	}
 }

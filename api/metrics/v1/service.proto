@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package api.metrics.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/metrics/v1";
+
+import "api/metrics/v1/messages.proto";
+
+// MetricsService provides methods for collecting and analyzing service metrics.
+service MetricsService {
+  // UploadMetrics accepts a stream of metrics and returns a summary.
+  rpc UploadMetrics(stream UploadMetricsRequest) returns (UploadMetricsResponse);
+}

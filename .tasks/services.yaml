@@ -28,6 +28,19 @@ tasks:
           -v gotes-postgres:/var/lib/postgresql \
           postgres:{{.DATABASE_VERSION}} postgres -c log_statement=all
 
+  redis:
+    desc: Run a local Redis using docker
+    vars:
+      REDIS_PASSWORD: '{{.REDIS_PASSWORD | default "gotes"}}'
+      REDIS_VERSION: '{{.REDIS_VERSION | default "8"}}'
+    requires:
+      vars: ['REDIS_PASSWORD']
+    cmds:
+      - |
+        docker run -it -p 6379:6379 \
+          -v gotes-redis:/data \
+          redis:{{.REDIS_VERSION}} redis-server --requirepass {{.REDIS_PASSWORD}} --loglevel debug
+
   goose:
     desc: Run arbitrary commands directly with `goose` (e.g., `goose -- status`)
     cmds:

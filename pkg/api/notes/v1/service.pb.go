@@ -24,36 +24,41 @@ var File_api_notes_v1_service_proto protoreflect.FileDescriptor
 
 const file_api_notes_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1aapi/notes/v1/service.proto\x12\fapi.notes.v1\x1a\x1bapi/notes/v1/messages.proto2\xd5\x02\n" +
+	"\x1aapi/notes/v1/service.proto\x12\fapi.notes.v1\x1a\x1bapi/notes/v1/messages.proto2\xbd\x03\n" +
 	"\fNotesService\x12L\n" +
 	"\tListNotes\x12\x1e.api.notes.v1.ListNotesRequest\x1a\x1f.api.notes.v1.ListNotesResponse\x12U\n" +
 	"\fRetrieveNote\x12!.api.notes.v1.RetrieveNoteRequest\x1a\".api.notes.v1.RetrieveNoteResponse\x12O\n" +
 	"\n" +
 	"CreateNote\x12\x1f.api.notes.v1.CreateNoteRequest\x1a .api.notes.v1.CreateNoteResponse\x12O\n" +
 	"\n" +
-	"DeleteNote\x12\x1f.api.notes.v1.DeleteNoteRequest\x1a .api.notes.v1.DeleteNoteResponseB3Z1github.com/therenotomorrow/gotes/pkg/api/notes/v1b\x06proto3"
+	"DeleteNote\x12\x1f.api.notes.v1.DeleteNoteRequest\x1a .api.notes.v1.DeleteNoteResponse\x12f\n" +
+	"\x11SubscribeToEvents\x12&.api.notes.v1.SubscribeToEventsRequest\x1a'.api.notes.v1.SubscribeToEventsResponse0\x01B3Z1github.com/therenotomorrow/gotes/pkg/api/notes/v1b\x06proto3"
 
 var file_api_notes_v1_service_proto_goTypes = []any{
-	(*ListNotesRequest)(nil),     // 0: api.notes.v1.ListNotesRequest
-	(*RetrieveNoteRequest)(nil),  // 1: api.notes.v1.RetrieveNoteRequest
-	(*CreateNoteRequest)(nil),    // 2: api.notes.v1.CreateNoteRequest
-	(*DeleteNoteRequest)(nil),    // 3: api.notes.v1.DeleteNoteRequest
-	(*ListNotesResponse)(nil),    // 4: api.notes.v1.ListNotesResponse
-	(*RetrieveNoteResponse)(nil), // 5: api.notes.v1.RetrieveNoteResponse
-	(*CreateNoteResponse)(nil),   // 6: api.notes.v1.CreateNoteResponse
-	(*DeleteNoteResponse)(nil),   // 7: api.notes.v1.DeleteNoteResponse
+	(*ListNotesRequest)(nil),          // 0: api.notes.v1.ListNotesRequest
+	(*RetrieveNoteRequest)(nil),       // 1: api.notes.v1.RetrieveNoteRequest
+	(*CreateNoteRequest)(nil),         // 2: api.notes.v1.CreateNoteRequest
+	(*DeleteNoteRequest)(nil),         // 3: api.notes.v1.DeleteNoteRequest
+	(*SubscribeToEventsRequest)(nil),  // 4: api.notes.v1.SubscribeToEventsRequest
+	(*ListNotesResponse)(nil),         // 5: api.notes.v1.ListNotesResponse
+	(*RetrieveNoteResponse)(nil),      // 6: api.notes.v1.RetrieveNoteResponse
+	(*CreateNoteResponse)(nil),        // 7: api.notes.v1.CreateNoteResponse
+	(*DeleteNoteResponse)(nil),        // 8: api.notes.v1.DeleteNoteResponse
+	(*SubscribeToEventsResponse)(nil), // 9: api.notes.v1.SubscribeToEventsResponse
 }
 var file_api_notes_v1_service_proto_depIdxs = []int32{
 	0, // 0: api.notes.v1.NotesService.ListNotes:input_type -> api.notes.v1.ListNotesRequest
 	1, // 1: api.notes.v1.NotesService.RetrieveNote:input_type -> api.notes.v1.RetrieveNoteRequest
 	2, // 2: api.notes.v1.NotesService.CreateNote:input_type -> api.notes.v1.CreateNoteRequest
 	3, // 3: api.notes.v1.NotesService.DeleteNote:input_type -> api.notes.v1.DeleteNoteRequest
-	4, // 4: api.notes.v1.NotesService.ListNotes:output_type -> api.notes.v1.ListNotesResponse
-	5, // 5: api.notes.v1.NotesService.RetrieveNote:output_type -> api.notes.v1.RetrieveNoteResponse
-	6, // 6: api.notes.v1.NotesService.CreateNote:output_type -> api.notes.v1.CreateNoteResponse
-	7, // 7: api.notes.v1.NotesService.DeleteNote:output_type -> api.notes.v1.DeleteNoteResponse
-	4, // [4:8] is the sub-list for method output_type
-	0, // [0:4] is the sub-list for method input_type
+	4, // 4: api.notes.v1.NotesService.SubscribeToEvents:input_type -> api.notes.v1.SubscribeToEventsRequest
+	5, // 5: api.notes.v1.NotesService.ListNotes:output_type -> api.notes.v1.ListNotesResponse
+	6, // 6: api.notes.v1.NotesService.RetrieveNote:output_type -> api.notes.v1.RetrieveNoteResponse
+	7, // 7: api.notes.v1.NotesService.CreateNote:output_type -> api.notes.v1.CreateNoteResponse
+	8, // 8: api.notes.v1.NotesService.DeleteNote:output_type -> api.notes.v1.DeleteNoteResponse
+	9, // 9: api.notes.v1.NotesService.SubscribeToEvents:output_type -> api.notes.v1.SubscribeToEventsResponse
+	5, // [5:10] is the sub-list for method output_type
+	0, // [0:5] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

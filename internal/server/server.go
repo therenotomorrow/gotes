@@ -10,6 +10,7 @@ import (
 
 	"buf.build/go/protovalidate"
 	"github.com/therenotomorrow/ex"
+	metricsv1 "github.com/therenotomorrow/gotes/internal/api/metrics/v1"
 	notesv1 "github.com/therenotomorrow/gotes/internal/api/notes/v1"
 	usersv1 "github.com/therenotomorrow/gotes/internal/api/users/v1"
 	"github.com/therenotomorrow/gotes/internal/config"
@@ -18,6 +19,8 @@ import (
 	"github.com/therenotomorrow/gotes/internal/domain/types/uuid"
 	"github.com/therenotomorrow/gotes/internal/services/secure"
 	"github.com/therenotomorrow/gotes/internal/storages/postgres"
+	"github.com/therenotomorrow/gotes/internal/storages/redis"
+	pbmetricsv1 "github.com/therenotomorrow/gotes/pkg/api/metrics/v1"
 	pbnotesv1 "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
 	pbusersv1 "github.com/therenotomorrow/gotes/pkg/api/users/v1"
 	"github.com/therenotomorrow/gotes/pkg/services/generate"
@@ -65,13 +68,19 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 				"/api.users.v1.UsersService/RefreshToken",
 			}...),
 		),
+		grpc.ChainStreamInterceptor(
+			tracer.StreamServerInterceptor,
+			LoggingStreamServerInterceptor(tracer),
+			secure.StreamServerInterceptor(deps.Authenticator),
+		),
 	)
 
 	email.SetValidator(deps.EmailValidator)
 	uuid.SetGenerator(deps.UUIDGenerator)
 	password.SetHasher(deps.PasswordHasher)
 
-	pbnotesv1.RegisterNotesServiceServer(server, notesv1.NewService(deps.Database, logger))
+	pbmetricsv1.RegisterMetricsServiceServer(server, metricsv1.NewService(logger))
+	pbnotesv1.RegisterNotesServiceServer(server, notesv1.NewService(deps.Database, deps.Redis, logger))
 	pbusersv1.RegisterUsersServiceServer(server, usersv1.New(deps.Database, logger))
 
 	if cfg.Debug {
@@ -84,9 +93,11 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 func Default(cfg *config.Config) *Server {
 	logger := trace.Logger(trace.JSON, cfg.Debug)
 	database := postgres.MustNew(postgres.Config{DSN: cfg.Postgres.DSN}, logger)
+	rdb := redis.MustNew(redis.Config{Address: cfg.Redis.Address, Password: cfg.Redis.Password}, logger)
 
 	return New(cfg, &Dependencies{
 		Database:       database,
+		Redis:          rdb,
 		Authenticator:  secure.NewTokenAuthenticator(database),
 		PasswordHasher: vault.NewPasswordHasher(),
 		UUIDGenerator:  generate.NewUUID(),

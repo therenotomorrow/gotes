@@ -19,4 +19,6 @@ service NotesService {
 
   // DeleteNote deletes a note by its unique identifier.
   rpc DeleteNote(DeleteNoteRequest) returns (DeleteNoteResponse);
+
+  rpc SubscribeToEvents(SubscribeToEventsRequest) returns (stream SubscribeToEventsResponse);
 }

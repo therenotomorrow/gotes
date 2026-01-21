@@ -2,16 +2,28 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"log/slog"
+	"time"
 
+	"github.com/redis/go-redis/v9"
+	"github.com/therenotomorrow/ex"
 	"github.com/therenotomorrow/gotes/internal/api"
 	adapters "github.com/therenotomorrow/gotes/internal/api/notes/v1/adapters/postgres"
 	"github.com/therenotomorrow/gotes/internal/api/notes/v1/ports"
 	"github.com/therenotomorrow/gotes/internal/api/notes/v1/usecases"
+	"github.com/therenotomorrow/gotes/internal/domain/entities"
 	"github.com/therenotomorrow/gotes/internal/services/secure"
 	"github.com/therenotomorrow/gotes/internal/storages/postgres"
 	pb "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
 	"github.com/therenotomorrow/gotes/pkg/services/trace"
+	"google.golang.org/grpc"
+)
+
+const (
+	halfSecond = time.Second / 2
+
+	ErrSend ex.Error = "send error"
 )
 
 type NotesService struct {
@@ -22,8 +34,8 @@ type NotesService struct {
 	cases  *usecases.UseCases
 }
 
-func NewService(db postgres.Database, logger *slog.Logger) *NotesService {
-	provider := adapters.NewStoreProvider(db)
+func NewService(db postgres.Database, rdb redis.UniversalClient, logger *slog.Logger) *NotesService {
+	provider := adapters.NewStoreProvider(db, rdb)
 	uow := adapters.NewUnitOfWork(db, provider)
 
 	return NewServiceWithProvider(uow, provider, logger)
@@ -112,4 +124,53 @@ func (svc *NotesService) ListNotes(ctx context.Context, _ *pb.ListNotesRequest) 
 	}
 
 	return &pb.ListNotesResponse{Notes: MarshalNotes(notes)}, nil
+}
+
+func (svc *NotesService) SubscribeToEvents(
+	_ *pb.SubscribeToEventsRequest,
+	stream grpc.ServerStreamingServer[pb.SubscribeToEventsResponse],
+) error {
+	ctx := stream.Context()
+
+	user, err := secure.User(ctx)
+	if err != nil {
+		return svc.handle(err)
+	}
+
+	unread, err := svc.cases.UnreadEvents(ctx, user)
+	if err != nil {
+		return svc.handle(err)
+	}
+
+	err = stream.Send(&pb.SubscribeToEventsResponse{Events: MarshalUnread(unread)})
+	if err != nil {
+		return svc.handle(ErrSend.Because(err))
+	}
+
+	ticker := time.NewTicker(halfSecond)
+	defer ticker.Stop()
+
+	for {
+		var event *entities.Event
+
+		select {
+		case <-ctx.Done():
+			return svc.handle(ctx.Err())
+
+		case <-ticker.C:
+			event, err = svc.cases.GetNextEvent(ctx, user)
+
+			switch {
+			case errors.Is(err, usecases.ErrZeroEvents):
+				continue
+			case err != nil:
+				return svc.handle(err)
+			}
+
+			err = stream.Send(&pb.SubscribeToEventsResponse{Events: MarshalEvent(event)})
+			if err != nil {
+				return svc.handle(ErrSend.Because(err))
+			}
+		}
+	}
 }

@@ -11,6 +11,7 @@ import (
 
 const (
 	ErrNoteNotFound     domain.Error = "note not found"
+	ErrZeroEvents       domain.Error = "zero events"
 	ErrPermissionDenied domain.Error = "permission denied"
 )
 
@@ -42,8 +43,13 @@ func (use *UseCases) CreateNote(
 
 	err = use.uow.Do(ctx, func(store ports.Store) error {
 		note, err = store.Notes.SaveNote(ctx, note)
+		if err != nil {
+			return err
+		}
 
-		return err
+		event := entities.NewEvent(entities.EventTypeCreated, note)
+
+		return store.Events.SaveEvent(ctx, event)
 	})
 
 	return note, err
@@ -70,7 +76,14 @@ func (use *UseCases) DeleteNote(ctx context.Context, user *entities.User, input 
 			return err
 		}
 
-		return store.Notes.DeleteNote(ctx, note)
+		err = store.Notes.DeleteNote(ctx, note)
+		if err != nil {
+			return err
+		}
+
+		event := entities.NewEvent(entities.EventTypeDeleted, note)
+
+		return store.Events.SaveEvent(ctx, event)
 	})
 }
 
@@ -103,6 +116,14 @@ func (use *UseCases) RetrieveNote(
 
 func (use *UseCases) ListNotes(ctx context.Context, user *entities.User) ([]*entities.Note, error) {
 	return use.store.Notes.GetNotesByUser(ctx, user)
+}
+
+func (use *UseCases) UnreadEvents(ctx context.Context, user *entities.User) (int32, error) {
+	return use.store.Events.CountEvents(ctx, user)
+}
+
+func (use *UseCases) GetNextEvent(ctx context.Context, user *entities.User) (*entities.Event, error) {
+	return use.store.Events.GetEvent(ctx, user)
 }
 
 func (use *UseCases) permit(user *entities.User, note *entities.Note) error {
