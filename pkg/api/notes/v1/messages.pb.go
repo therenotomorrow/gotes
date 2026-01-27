@@ -679,11 +679,11 @@ type SubscribeToEventsResponse struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// The content of the subscription response.
 	//
-	// Types that are valid to be assigned to Events:
+	// Types that are valid to be assigned to Payload:
 	//
 	//	*SubscribeToEventsResponse_Event
 	//	*SubscribeToEventsResponse_Unread
-	Events        isSubscribeToEventsResponse_Events `protobuf_oneof:"events"`
+	Payload       isSubscribeToEventsResponse_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -718,16 +718,16 @@ func (*SubscribeToEventsResponse) Descriptor() ([]byte, []int) {
 	return file_api_notes_v1_messages_proto_rawDescGZIP(), []int{12}
 }
 
-func (x *SubscribeToEventsResponse) GetEvents() isSubscribeToEventsResponse_Events {
+func (x *SubscribeToEventsResponse) GetPayload() isSubscribeToEventsResponse_Payload {
 	if x != nil {
-		return x.Events
+		return x.Payload
 	}
 	return nil
 }
 
 func (x *SubscribeToEventsResponse) GetEvent() *Event {
 	if x != nil {
-		if x, ok := x.Events.(*SubscribeToEventsResponse_Event); ok {
+		if x, ok := x.Payload.(*SubscribeToEventsResponse_Event); ok {
 			return x.Event
 		}
 	}
@@ -736,15 +736,15 @@ func (x *SubscribeToEventsResponse) GetEvent() *Event {
 
 func (x *SubscribeToEventsResponse) GetUnread() *Unread {
 	if x != nil {
-		if x, ok := x.Events.(*SubscribeToEventsResponse_Unread); ok {
+		if x, ok := x.Payload.(*SubscribeToEventsResponse_Unread); ok {
 			return x.Unread
 		}
 	}
 	return nil
 }
 
-type isSubscribeToEventsResponse_Events interface {
-	isSubscribeToEventsResponse_Events()
+type isSubscribeToEventsResponse_Payload interface {
+	isSubscribeToEventsResponse_Payload()
 }
 
 type SubscribeToEventsResponse_Event struct {
@@ -757,9 +757,9 @@ type SubscribeToEventsResponse_Unread struct {
 	Unread *Unread `protobuf:"bytes,2,opt,name=unread,proto3,oneof"`
 }
 
-func (*SubscribeToEventsResponse_Event) isSubscribeToEventsResponse_Events() {}
+func (*SubscribeToEventsResponse_Event) isSubscribeToEventsResponse_Payload() {}
 
-func (*SubscribeToEventsResponse_Unread) isSubscribeToEventsResponse_Events() {}
+func (*SubscribeToEventsResponse_Unread) isSubscribeToEventsResponse_Payload() {}
 
 var File_api_notes_v1_messages_proto protoreflect.FileDescriptor
 
@@ -800,11 +800,11 @@ const file_api_notes_v1_messages_proto_rawDesc = "" +
 	"event_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\teventTime\" \n" +
 	"\x06Unread\x12\x16\n" +
 	"\x06events\x18\x01 \x01(\x05R\x06events\"\x1a\n" +
-	"\x18SubscribeToEventsRequest\"\x82\x01\n" +
+	"\x18SubscribeToEventsRequest\"\x83\x01\n" +
 	"\x19SubscribeToEventsResponse\x12+\n" +
 	"\x05event\x18\x01 \x01(\v2\x13.api.notes.v1.EventH\x00R\x05event\x12.\n" +
-	"\x06unread\x18\x02 \x01(\v2\x14.api.notes.v1.UnreadH\x00R\x06unreadB\b\n" +
-	"\x06events*S\n" +
+	"\x06unread\x18\x02 \x01(\v2\x14.api.notes.v1.UnreadH\x00R\x06unreadB\t\n" +
+	"\apayload*S\n" +
 	"\tEventType\x12\x16\n" +
 	"\x12EVENT_TYPE_UNKNOWN\x10\x00\x12\x16\n" +
 	"\x12EVENT_TYPE_CREATED\x10\x01\x12\x16\n" +

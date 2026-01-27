@@ -41,6 +41,10 @@ const (
 	ErrorCode_ERROR_CODE_ENTITY_NOT_FOUND ErrorCode = 6
 	// The caller does not have permission to perform the requested operation.
 	ErrorCode_ERROR_CODE_PERMISSION_DENIED ErrorCode = 7
+	// General business logic error (e.g., domain rule violation).
+	ErrorCode_ERROR_CODE_BUSINESS ErrorCode = 8
+	// The provided text is invalid.
+	ErrorCode_ERROR_CODE_INVALID_TEXT ErrorCode = 9
 	// Internal server error.
 	ErrorCode_ERROR_CODE_INTERNAL ErrorCode = 99
 )
@@ -56,6 +60,8 @@ var (
 		5:  "ERROR_CODE_INVALID_CONTENT",
 		6:  "ERROR_CODE_ENTITY_NOT_FOUND",
 		7:  "ERROR_CODE_PERMISSION_DENIED",
+		8:  "ERROR_CODE_BUSINESS",
+		9:  "ERROR_CODE_INVALID_TEXT",
 		99: "ERROR_CODE_INTERNAL",
 	}
 	ErrorCode_value = map[string]int32{
@@ -67,6 +73,8 @@ var (
 		"ERROR_CODE_INVALID_CONTENT":   5,
 		"ERROR_CODE_ENTITY_NOT_FOUND":  6,
 		"ERROR_CODE_PERMISSION_DENIED": 7,
+		"ERROR_CODE_BUSINESS":          8,
+		"ERROR_CODE_INVALID_TEXT":      9,
 		"ERROR_CODE_INTERNAL":          99,
 	}
 )
@@ -162,7 +170,7 @@ const file_api_types_error_proto_rawDesc = "" +
 	"\x15api/types/error.proto\x12\tapi.types\"I\n" +
 	"\x05Error\x12(\n" +
 	"\x04code\x18\x01 \x01(\x0e2\x14.api.types.ErrorCodeR\x04code\x12\x16\n" +
-	"\x06reason\x18\x02 \x01(\tR\x06reason*\x97\x02\n" +
+	"\x06reason\x18\x02 \x01(\tR\x06reason*\xcd\x02\n" +
 	"\tErrorCode\x12\x16\n" +
 	"\x12ERROR_CODE_UNKNOWN\x10\x00\x12\x19\n" +
 	"\x15ERROR_CODE_INVALID_ID\x10\x01\x12\x1c\n" +
@@ -172,6 +180,8 @@ const file_api_types_error_proto_rawDesc = "" +
 	"\x1aERROR_CODE_INVALID_CONTENT\x10\x05\x12\x1f\n" +
 	"\x1bERROR_CODE_ENTITY_NOT_FOUND\x10\x06\x12 \n" +
 	"\x1cERROR_CODE_PERMISSION_DENIED\x10\a\x12\x17\n" +
+	"\x13ERROR_CODE_BUSINESS\x10\b\x12\x1b\n" +
+	"\x17ERROR_CODE_INVALID_TEXT\x10\t\x12\x17\n" +
 	"\x13ERROR_CODE_INTERNAL\x10cB0Z.github.com/therenotomorrow/gotes/pkg/api/typesb\x06proto3"
 
 var (

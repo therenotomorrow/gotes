@@ -126,6 +126,22 @@ func FailPath(cli *client.Client, log *slog.Logger, user *User) {
 	detailed(log, "RetrieveNote 2", err)
 }
 
+func detailed(log *slog.Logger, msg string, err error) {
+	st := status.Convert(err)
+
+	if len(st.Details()) == 0 {
+		log.Info(msg, "extra", "no details", "error", err)
+
+		return
+	}
+
+	for _, detail := range st.Details() {
+		proto, _ := detail.(*typespb.Error)
+
+		log.Info(msg, "code", proto.GetCode(), "reason", proto.GetReason())
+	}
+}
+
 func main() {
 	var (
 		cfg = config.MustNew()
@@ -148,20 +164,4 @@ func main() {
 	user = HappyPath(cli, log, user)
 
 	FailPath(cli, log, user)
-}
-
-func detailed(log *slog.Logger, msg string, err error) {
-	st := status.Convert(err)
-
-	if len(st.Details()) == 0 {
-		log.Info(msg, "extra", "no details", "error", err)
-
-		return
-	}
-
-	for _, detail := range st.Details() {
-		proto, _ := detail.(*typespb.Error)
-
-		log.Info(msg, "code", proto.GetCode(), "reason", proto.GetReason())
-	}
 }

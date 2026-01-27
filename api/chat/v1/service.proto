@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package api.chat.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/chat/v1";
+
+import "api/chat/v1/messages.proto";
+
+// ChatService provides real-time communication capabilities.
+service ChatService {
+  // Dispatch is used for real-time message exchange.
+  rpc Dispatch(stream DispatchRequest) returns (stream DispatchResponse);
+}

@@ -10,6 +10,7 @@ import (
 
 	"buf.build/go/protovalidate"
 	"github.com/therenotomorrow/ex"
+	chatv1 "github.com/therenotomorrow/gotes/internal/api/chat/v1"
 	metricsv1 "github.com/therenotomorrow/gotes/internal/api/metrics/v1"
 	notesv1 "github.com/therenotomorrow/gotes/internal/api/notes/v1"
 	usersv1 "github.com/therenotomorrow/gotes/internal/api/users/v1"
@@ -20,6 +21,7 @@ import (
 	"github.com/therenotomorrow/gotes/internal/services/secure"
 	"github.com/therenotomorrow/gotes/internal/storages/postgres"
 	"github.com/therenotomorrow/gotes/internal/storages/redis"
+	pbchatv1 "github.com/therenotomorrow/gotes/pkg/api/chat/v1"
 	pbmetricsv1 "github.com/therenotomorrow/gotes/pkg/api/metrics/v1"
 	pbnotesv1 "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
 	pbusersv1 "github.com/therenotomorrow/gotes/pkg/api/users/v1"
@@ -71,7 +73,10 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 		grpc.ChainStreamInterceptor(
 			tracer.StreamServerInterceptor,
 			LoggingStreamServerInterceptor(tracer),
-			secure.StreamServerInterceptor(deps.Authenticator),
+			secure.StreamServerInterceptor(deps.Authenticator, []string{
+				"/api.chat.v1.ChatService/Dispatch",
+				"/api.metrics.v1.MetricsService/UploadMetrics",
+			}...),
 		),
 	)
 
@@ -81,7 +86,8 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 
 	pbmetricsv1.RegisterMetricsServiceServer(server, metricsv1.NewService(logger))
 	pbnotesv1.RegisterNotesServiceServer(server, notesv1.NewService(deps.Database, deps.Redis, logger))
-	pbusersv1.RegisterUsersServiceServer(server, usersv1.New(deps.Database, logger))
+	pbusersv1.RegisterUsersServiceServer(server, usersv1.NewService(deps.Database, logger))
+	pbchatv1.RegisterChatServiceServer(server, chatv1.NewService(validator, logger))
 
 	if cfg.Debug {
 		reflection.Register(server)

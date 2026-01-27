@@ -40,6 +40,7 @@ type NotesServiceClient interface {
 	CreateNote(ctx context.Context, in *CreateNoteRequest, opts ...grpc.CallOption) (*CreateNoteResponse, error)
 	// DeleteNote deletes a note by its unique identifier.
 	DeleteNote(ctx context.Context, in *DeleteNoteRequest, opts ...grpc.CallOption) (*DeleteNoteResponse, error)
+	// SubscribeToEvents will notify about creation or deletion of notes.
 	SubscribeToEvents(ctx context.Context, in *SubscribeToEventsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SubscribeToEventsResponse], error)
 }
 
@@ -124,6 +125,7 @@ type NotesServiceServer interface {
 	CreateNote(context.Context, *CreateNoteRequest) (*CreateNoteResponse, error)
 	// DeleteNote deletes a note by its unique identifier.
 	DeleteNote(context.Context, *DeleteNoteRequest) (*DeleteNoteResponse, error)
+	// SubscribeToEvents will notify about creation or deletion of notes.
 	SubscribeToEvents(*SubscribeToEventsRequest, grpc.ServerStreamingServer[SubscribeToEventsResponse]) error
 	mustEmbedUnimplementedNotesServiceServer()
 }

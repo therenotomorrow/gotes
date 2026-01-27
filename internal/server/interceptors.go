@@ -37,27 +37,40 @@ func LoggingUnaryServerInterceptor(logger log) grpc.UnaryServerInterceptor {
 	}
 }
 
+type wrappedServerStream struct {
+	grpc.ServerStream
+
+	logger log
+}
+
+func (wss *wrappedServerStream) SendMsg(m any) error {
+	wss.logger.Log(wss.Context(), slog.LevelInfo, "sending stream message", "message", m)
+
+	return wss.ServerStream.SendMsg(m)
+}
+
+func (wss *wrappedServerStream) RecvMsg(m any) error {
+	args := []any{"message", m}
+	level := slog.LevelInfo
+
+	err := wss.ServerStream.RecvMsg(m)
+	if err != nil {
+		level = slog.LevelError
+
+		args = append(args, "error", err)
+	}
+
+	wss.logger.Log(wss.Context(), level, "receiving stream message", args...)
+
+	return err
+}
+
 func LoggingStreamServerInterceptor(logger log) grpc.StreamServerInterceptor {
 	return func(srv any, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-		ctx := stream.Context()
-		args := []any{"method", info.FullMethod}
-		level := slog.LevelInfo
-		start := time.Now()
+		wrapped := &wrappedServerStream{ServerStream: stream, logger: logger}
 
-		logger.Log(ctx, level, "request", args...)
+		logger.Log(wrapped.Context(), slog.LevelInfo, "start streaming", "method", info.FullMethod)
 
-		err := handler(ctx, stream)
-
-		args = append(args, "duration", time.Since(start).String(), "status", status.Code(err).String())
-
-		if err != nil {
-			level = slog.LevelError
-
-			args = append(args, "error", err)
-		}
-
-		logger.Log(ctx, level, "response", args...)
-
-		return err
+		return handler(srv, wrapped)
 	}
 }

@@ -33,7 +33,7 @@ type event struct {
 }
 
 func MarshalEvent(e *entities.Event) ([]byte, error) {
-	val, err := json.Marshal(event{
+	val, err := json.Marshal(&event{
 		ID:        uuid.MustParse(e.ID.Value()),
 		EventType: e.EventType,
 		NoteID:    e.Note.ID,

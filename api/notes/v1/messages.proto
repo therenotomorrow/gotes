@@ -117,7 +117,7 @@ message SubscribeToEventsRequest {}
 // SubscribeToEventsResponse is the response message in the event stream.
 message SubscribeToEventsResponse {
   // The content of the subscription response.
-  oneof events {
+  oneof payload {
     // A specific event that just occurred.
     Event event = 1;
 

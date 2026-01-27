@@ -22,6 +22,7 @@ import (
 
 const (
 	halfSecond = time.Second / 2
+	triesLimit = 10
 
 	ErrSend ex.Error = "send error"
 )
@@ -142,7 +143,7 @@ func (svc *NotesService) SubscribeToEvents(
 		return svc.handle(err)
 	}
 
-	err = stream.Send(&pb.SubscribeToEventsResponse{Events: MarshalUnread(unread)})
+	err = stream.Send(&pb.SubscribeToEventsResponse{Payload: MarshalUnread(unread)})
 	if err != nil {
 		return svc.handle(ErrSend.Because(err))
 	}
@@ -150,7 +151,7 @@ func (svc *NotesService) SubscribeToEvents(
 	ticker := time.NewTicker(halfSecond)
 	defer ticker.Stop()
 
-	for {
+	for tries := 0; tries < triesLimit; {
 		var event *entities.Event
 
 		select {
@@ -162,15 +163,21 @@ func (svc *NotesService) SubscribeToEvents(
 
 			switch {
 			case errors.Is(err, usecases.ErrZeroEvents):
+				tries++
+
 				continue
 			case err != nil:
 				return svc.handle(err)
 			}
 
-			err = stream.Send(&pb.SubscribeToEventsResponse{Events: MarshalEvent(event)})
+			err = stream.Send(&pb.SubscribeToEventsResponse{Payload: MarshalEvent(event)})
 			if err != nil {
 				return svc.handle(ErrSend.Because(err))
 			}
+
+			tries = 0
 		}
 	}
+
+	return nil
 }

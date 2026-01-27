@@ -7,6 +7,10 @@ import (
 	"github.com/therenotomorrow/gotes/internal/api/metrics/v1/ports"
 )
 
+const (
+	percents = 100
+)
+
 type UseCases struct {
 	store ports.Store
 }
@@ -34,7 +38,7 @@ func (use *UseCases) CollectMetrics(ctx context.Context) (entities.Statistics, e
 		errs += metric.Errors
 	}
 
-	stat.ErrorRate = float64(errs) / float64(stat.Total)
+	stat.ErrorRate = (float64(errs) / float64(stat.Total)) * percents
 
 	return stat, nil
 }

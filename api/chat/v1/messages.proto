@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package api.chat.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/pkg/api/chat/v1";
+
+import "buf/validate/validate.proto";
+import "google/rpc/status.proto";
+
+// Header contains metadata for request tracking and observability.
+message Header {
+  // Unique string used to track a message's lifecycle chatting.
+  string correlation_id = 1;
+}
+
+// Message represents the core data unit exchanged in a chat session.
+message Message {
+  // Metadata for the message.
+  Header header = 1;
+
+  // The actual text content of the message.
+  string text = 2 [
+    (buf.validate.field).required = true,
+    (buf.validate.field).string.min_len = 4
+  ];
+}
+
+// DispatchRequest is the envelope for sending a message to the stream.
+message DispatchRequest {
+  // The message being dispatched by the client.
+  Message message = 1;
+}
+
+// DispatchResponse is the envelope for receiving data from the stream.
+message DispatchResponse {
+  // The content of the envelope.
+  oneof payload {
+    // The message being dispatched to the client.
+    Message message = 1;
+
+    // Detailed error status if the dispatch failed.
+    google.rpc.Status status = 2;
+  }
+}
