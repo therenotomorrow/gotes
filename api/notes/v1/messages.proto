@@ -77,3 +77,51 @@ message DeleteNoteRequest {
 
 // DeleteNoteResponse is the response message after deleting a note.
 message DeleteNoteResponse {}
+
+// EventType defines the type of action that occurred to a note.
+enum EventType {
+  // Default value, should not be used.
+  EVENT_TYPE_UNKNOWN = 0;
+
+  // Indicates that a new note has been created.
+  EVENT_TYPE_CREATED = 1;
+
+  // Indicates that a note has been deleted.
+  EVENT_TYPE_DELETED = 2;
+}
+
+// Event represents a system notification about a change in notes.
+message Event {
+  // Unique identifier of the event.
+  string id = 1;
+
+  // Type of the event.
+  EventType type = 2;
+
+  // ID of the note associated with this event.
+  api.types.ID note_id = 3;
+
+  // Timestamp when the event occurred.
+  google.protobuf.Timestamp event_time = 4;
+}
+
+// Unread represents information about the number of unread events.
+message Unread {
+  // Total count of unread events.
+  int32 events = 1;
+}
+
+// SubscribeToEventsRequest is the request message for event stream subscription.
+message SubscribeToEventsRequest {}
+
+// SubscribeToEventsResponse is the response message in the event stream.
+message SubscribeToEventsResponse {
+  // The content of the subscription response.
+  oneof payload {
+    // A specific event that just occurred.
+    Event event = 1;
+
+    // Information about unread events (e.g., sent on initial connection).
+    Unread unread = 2;
+  }
+}

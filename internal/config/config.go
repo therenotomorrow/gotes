@@ -41,9 +41,15 @@ type Postgres struct {
 	DSN string `env:"GOTES_POSTGRES_DSN,required" json:"dsn"`
 }
 
+type Redis struct {
+	Address  string `env:"GOTES_REDIS_ADDRESS,required"  json:"address"`
+	Password string `env:"GOTES_REDIS_PASSWORD,required" json:"password"`
+}
+
 type Config struct {
 	Tier     Tier     `env:"GOTES_TIER,required"  json:"tier"`
 	Postgres Postgres `                           json:"postgres"`
+	Redis    Redis    `                           json:"redis"`
 	Server   Server   `                           json:"server"`
 	Debug    bool     `env:"GOTES_DEBUG,required" json:"debug"`
 }

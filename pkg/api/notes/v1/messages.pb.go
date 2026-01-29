@@ -24,6 +24,59 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+// EventType defines the type of action that occurred to a note.
+type EventType int32
+
+const (
+	// Default value, should not be used.
+	EventType_EVENT_TYPE_UNKNOWN EventType = 0
+	// Indicates that a new note has been created.
+	EventType_EVENT_TYPE_CREATED EventType = 1
+	// Indicates that a note has been deleted.
+	EventType_EVENT_TYPE_DELETED EventType = 2
+)
+
+// Enum value maps for EventType.
+var (
+	EventType_name = map[int32]string{
+		0: "EVENT_TYPE_UNKNOWN",
+		1: "EVENT_TYPE_CREATED",
+		2: "EVENT_TYPE_DELETED",
+	}
+	EventType_value = map[string]int32{
+		"EVENT_TYPE_UNKNOWN": 0,
+		"EVENT_TYPE_CREATED": 1,
+		"EVENT_TYPE_DELETED": 2,
+	}
+)
+
+func (x EventType) Enum() *EventType {
+	p := new(EventType)
+	*p = x
+	return p
+}
+
+func (x EventType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (EventType) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_notes_v1_messages_proto_enumTypes[0].Descriptor()
+}
+
+func (EventType) Type() protoreflect.EnumType {
+	return &file_api_notes_v1_messages_proto_enumTypes[0]
+}
+
+func (x EventType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use EventType.Descriptor instead.
+func (EventType) EnumDescriptor() ([]byte, []int) {
+	return file_api_notes_v1_messages_proto_rawDescGZIP(), []int{0}
+}
+
 // Note represents a single note entity.
 type Note struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -465,6 +518,249 @@ func (*DeleteNoteResponse) Descriptor() ([]byte, []int) {
 	return file_api_notes_v1_messages_proto_rawDescGZIP(), []int{8}
 }
 
+// Event represents a system notification about a change in notes.
+type Event struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Unique identifier of the event.
+	Id string `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	// Type of the event.
+	Type EventType `protobuf:"varint,2,opt,name=type,proto3,enum=api.notes.v1.EventType" json:"type,omitempty"`
+	// ID of the note associated with this event.
+	NoteId *types.ID `protobuf:"bytes,3,opt,name=note_id,json=noteId,proto3" json:"note_id,omitempty"`
+	// Timestamp when the event occurred.
+	EventTime     *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=event_time,json=eventTime,proto3" json:"event_time,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Event) Reset() {
+	*x = Event{}
+	mi := &file_api_notes_v1_messages_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Event) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Event) ProtoMessage() {}
+
+func (x *Event) ProtoReflect() protoreflect.Message {
+	mi := &file_api_notes_v1_messages_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Event.ProtoReflect.Descriptor instead.
+func (*Event) Descriptor() ([]byte, []int) {
+	return file_api_notes_v1_messages_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *Event) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *Event) GetType() EventType {
+	if x != nil {
+		return x.Type
+	}
+	return EventType_EVENT_TYPE_UNKNOWN
+}
+
+func (x *Event) GetNoteId() *types.ID {
+	if x != nil {
+		return x.NoteId
+	}
+	return nil
+}
+
+func (x *Event) GetEventTime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.EventTime
+	}
+	return nil
+}
+
+// Unread represents information about the number of unread events.
+type Unread struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Total count of unread events.
+	Events        int32 `protobuf:"varint,1,opt,name=events,proto3" json:"events,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Unread) Reset() {
+	*x = Unread{}
+	mi := &file_api_notes_v1_messages_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Unread) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Unread) ProtoMessage() {}
+
+func (x *Unread) ProtoReflect() protoreflect.Message {
+	mi := &file_api_notes_v1_messages_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Unread.ProtoReflect.Descriptor instead.
+func (*Unread) Descriptor() ([]byte, []int) {
+	return file_api_notes_v1_messages_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *Unread) GetEvents() int32 {
+	if x != nil {
+		return x.Events
+	}
+	return 0
+}
+
+// SubscribeToEventsRequest is the request message for event stream subscription.
+type SubscribeToEventsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubscribeToEventsRequest) Reset() {
+	*x = SubscribeToEventsRequest{}
+	mi := &file_api_notes_v1_messages_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubscribeToEventsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubscribeToEventsRequest) ProtoMessage() {}
+
+func (x *SubscribeToEventsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_api_notes_v1_messages_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubscribeToEventsRequest.ProtoReflect.Descriptor instead.
+func (*SubscribeToEventsRequest) Descriptor() ([]byte, []int) {
+	return file_api_notes_v1_messages_proto_rawDescGZIP(), []int{11}
+}
+
+// SubscribeToEventsResponse is the response message in the event stream.
+type SubscribeToEventsResponse struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// The content of the subscription response.
+	//
+	// Types that are valid to be assigned to Payload:
+	//
+	//	*SubscribeToEventsResponse_Event
+	//	*SubscribeToEventsResponse_Unread
+	Payload       isSubscribeToEventsResponse_Payload `protobuf_oneof:"payload"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubscribeToEventsResponse) Reset() {
+	*x = SubscribeToEventsResponse{}
+	mi := &file_api_notes_v1_messages_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubscribeToEventsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubscribeToEventsResponse) ProtoMessage() {}
+
+func (x *SubscribeToEventsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_notes_v1_messages_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubscribeToEventsResponse.ProtoReflect.Descriptor instead.
+func (*SubscribeToEventsResponse) Descriptor() ([]byte, []int) {
+	return file_api_notes_v1_messages_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *SubscribeToEventsResponse) GetPayload() isSubscribeToEventsResponse_Payload {
+	if x != nil {
+		return x.Payload
+	}
+	return nil
+}
+
+func (x *SubscribeToEventsResponse) GetEvent() *Event {
+	if x != nil {
+		if x, ok := x.Payload.(*SubscribeToEventsResponse_Event); ok {
+			return x.Event
+		}
+	}
+	return nil
+}
+
+func (x *SubscribeToEventsResponse) GetUnread() *Unread {
+	if x != nil {
+		if x, ok := x.Payload.(*SubscribeToEventsResponse_Unread); ok {
+			return x.Unread
+		}
+	}
+	return nil
+}
+
+type isSubscribeToEventsResponse_Payload interface {
+	isSubscribeToEventsResponse_Payload()
+}
+
+type SubscribeToEventsResponse_Event struct {
+	// A specific event that just occurred.
+	Event *Event `protobuf:"bytes,1,opt,name=event,proto3,oneof"`
+}
+
+type SubscribeToEventsResponse_Unread struct {
+	// Information about unread events (e.g., sent on initial connection).
+	Unread *Unread `protobuf:"bytes,2,opt,name=unread,proto3,oneof"`
+}
+
+func (*SubscribeToEventsResponse_Event) isSubscribeToEventsResponse_Payload() {}
+
+func (*SubscribeToEventsResponse_Unread) isSubscribeToEventsResponse_Payload() {}
+
 var File_api_notes_v1_messages_proto protoreflect.FileDescriptor
 
 const file_api_notes_v1_messages_proto_rawDesc = "" +
@@ -495,7 +791,24 @@ const file_api_notes_v1_messages_proto_rawDesc = "" +
 	"\x04note\x18\x01 \x01(\v2\x12.api.notes.v1.NoteR\x04note\"2\n" +
 	"\x11DeleteNoteRequest\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\v2\r.api.types.IDR\x02id\"\x14\n" +
-	"\x12DeleteNoteResponseB3Z1github.com/therenotomorrow/gotes/pkg/api/notes/v1b\x06proto3"
+	"\x12DeleteNoteResponse\"\xa7\x01\n" +
+	"\x05Event\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12+\n" +
+	"\x04type\x18\x02 \x01(\x0e2\x17.api.notes.v1.EventTypeR\x04type\x12&\n" +
+	"\anote_id\x18\x03 \x01(\v2\r.api.types.IDR\x06noteId\x129\n" +
+	"\n" +
+	"event_time\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\teventTime\" \n" +
+	"\x06Unread\x12\x16\n" +
+	"\x06events\x18\x01 \x01(\x05R\x06events\"\x1a\n" +
+	"\x18SubscribeToEventsRequest\"\x83\x01\n" +
+	"\x19SubscribeToEventsResponse\x12+\n" +
+	"\x05event\x18\x01 \x01(\v2\x13.api.notes.v1.EventH\x00R\x05event\x12.\n" +
+	"\x06unread\x18\x02 \x01(\v2\x14.api.notes.v1.UnreadH\x00R\x06unreadB\t\n" +
+	"\apayload*S\n" +
+	"\tEventType\x12\x16\n" +
+	"\x12EVENT_TYPE_UNKNOWN\x10\x00\x12\x16\n" +
+	"\x12EVENT_TYPE_CREATED\x10\x01\x12\x16\n" +
+	"\x12EVENT_TYPE_DELETED\x10\x02B3Z1github.com/therenotomorrow/gotes/pkg/api/notes/v1b\x06proto3"
 
 var (
 	file_api_notes_v1_messages_proto_rawDescOnce sync.Once
@@ -509,34 +822,45 @@ func file_api_notes_v1_messages_proto_rawDescGZIP() []byte {
 	return file_api_notes_v1_messages_proto_rawDescData
 }
 
-var file_api_notes_v1_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_api_notes_v1_messages_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_api_notes_v1_messages_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_api_notes_v1_messages_proto_goTypes = []any{
-	(*Note)(nil),                  // 0: api.notes.v1.Note
-	(*ListNotesRequest)(nil),      // 1: api.notes.v1.ListNotesRequest
-	(*ListNotesResponse)(nil),     // 2: api.notes.v1.ListNotesResponse
-	(*RetrieveNoteRequest)(nil),   // 3: api.notes.v1.RetrieveNoteRequest
-	(*RetrieveNoteResponse)(nil),  // 4: api.notes.v1.RetrieveNoteResponse
-	(*CreateNoteRequest)(nil),     // 5: api.notes.v1.CreateNoteRequest
-	(*CreateNoteResponse)(nil),    // 6: api.notes.v1.CreateNoteResponse
-	(*DeleteNoteRequest)(nil),     // 7: api.notes.v1.DeleteNoteRequest
-	(*DeleteNoteResponse)(nil),    // 8: api.notes.v1.DeleteNoteResponse
-	(*types.ID)(nil),              // 9: api.types.ID
-	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
+	(EventType)(0),                    // 0: api.notes.v1.EventType
+	(*Note)(nil),                      // 1: api.notes.v1.Note
+	(*ListNotesRequest)(nil),          // 2: api.notes.v1.ListNotesRequest
+	(*ListNotesResponse)(nil),         // 3: api.notes.v1.ListNotesResponse
+	(*RetrieveNoteRequest)(nil),       // 4: api.notes.v1.RetrieveNoteRequest
+	(*RetrieveNoteResponse)(nil),      // 5: api.notes.v1.RetrieveNoteResponse
+	(*CreateNoteRequest)(nil),         // 6: api.notes.v1.CreateNoteRequest
+	(*CreateNoteResponse)(nil),        // 7: api.notes.v1.CreateNoteResponse
+	(*DeleteNoteRequest)(nil),         // 8: api.notes.v1.DeleteNoteRequest
+	(*DeleteNoteResponse)(nil),        // 9: api.notes.v1.DeleteNoteResponse
+	(*Event)(nil),                     // 10: api.notes.v1.Event
+	(*Unread)(nil),                    // 11: api.notes.v1.Unread
+	(*SubscribeToEventsRequest)(nil),  // 12: api.notes.v1.SubscribeToEventsRequest
+	(*SubscribeToEventsResponse)(nil), // 13: api.notes.v1.SubscribeToEventsResponse
+	(*types.ID)(nil),                  // 14: api.types.ID
+	(*timestamppb.Timestamp)(nil),     // 15: google.protobuf.Timestamp
 }
 var file_api_notes_v1_messages_proto_depIdxs = []int32{
-	9,  // 0: api.notes.v1.Note.id:type_name -> api.types.ID
-	10, // 1: api.notes.v1.Note.created_at:type_name -> google.protobuf.Timestamp
-	10, // 2: api.notes.v1.Note.updated_at:type_name -> google.protobuf.Timestamp
-	0,  // 3: api.notes.v1.ListNotesResponse.notes:type_name -> api.notes.v1.Note
-	9,  // 4: api.notes.v1.RetrieveNoteRequest.id:type_name -> api.types.ID
-	0,  // 5: api.notes.v1.RetrieveNoteResponse.note:type_name -> api.notes.v1.Note
-	0,  // 6: api.notes.v1.CreateNoteResponse.note:type_name -> api.notes.v1.Note
-	9,  // 7: api.notes.v1.DeleteNoteRequest.id:type_name -> api.types.ID
-	8,  // [8:8] is the sub-list for method output_type
-	8,  // [8:8] is the sub-list for method input_type
-	8,  // [8:8] is the sub-list for extension type_name
-	8,  // [8:8] is the sub-list for extension extendee
-	0,  // [0:8] is the sub-list for field type_name
+	14, // 0: api.notes.v1.Note.id:type_name -> api.types.ID
+	15, // 1: api.notes.v1.Note.created_at:type_name -> google.protobuf.Timestamp
+	15, // 2: api.notes.v1.Note.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 3: api.notes.v1.ListNotesResponse.notes:type_name -> api.notes.v1.Note
+	14, // 4: api.notes.v1.RetrieveNoteRequest.id:type_name -> api.types.ID
+	1,  // 5: api.notes.v1.RetrieveNoteResponse.note:type_name -> api.notes.v1.Note
+	1,  // 6: api.notes.v1.CreateNoteResponse.note:type_name -> api.notes.v1.Note
+	14, // 7: api.notes.v1.DeleteNoteRequest.id:type_name -> api.types.ID
+	0,  // 8: api.notes.v1.Event.type:type_name -> api.notes.v1.EventType
+	14, // 9: api.notes.v1.Event.note_id:type_name -> api.types.ID
+	15, // 10: api.notes.v1.Event.event_time:type_name -> google.protobuf.Timestamp
+	10, // 11: api.notes.v1.SubscribeToEventsResponse.event:type_name -> api.notes.v1.Event
+	11, // 12: api.notes.v1.SubscribeToEventsResponse.unread:type_name -> api.notes.v1.Unread
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_api_notes_v1_messages_proto_init() }
@@ -544,18 +868,23 @@ func file_api_notes_v1_messages_proto_init() {
 	if File_api_notes_v1_messages_proto != nil {
 		return
 	}
+	file_api_notes_v1_messages_proto_msgTypes[12].OneofWrappers = []any{
+		(*SubscribeToEventsResponse_Event)(nil),
+		(*SubscribeToEventsResponse_Unread)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_notes_v1_messages_proto_rawDesc), len(file_api_notes_v1_messages_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   9,
+			NumEnums:      1,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_api_notes_v1_messages_proto_goTypes,
 		DependencyIndexes: file_api_notes_v1_messages_proto_depIdxs,
+		EnumInfos:         file_api_notes_v1_messages_proto_enumTypes,
 		MessageInfos:      file_api_notes_v1_messages_proto_msgTypes,
 	}.Build()
 	File_api_notes_v1_messages_proto = out.File

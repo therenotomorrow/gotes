@@ -21,13 +21,14 @@ type UsersService struct {
 	cases  *usecases.UseCases
 }
 
-func New(db postgres.Database, logger *slog.Logger) *UsersService {
+func NewService(db postgres.Database, logger *slog.Logger) *UsersService {
 	provider := adapters.NewStoreProvider(db)
+	uow := adapters.NewUnitOfWork(db, provider)
 
-	return NewService(adapters.NewUnitOfWork(db, provider), logger)
+	return NewServiceWithProvider(uow, logger)
 }
 
-func NewService(uow ports.UnitOfWork, logger *slog.Logger) *UsersService {
+func NewServiceWithProvider(uow ports.UnitOfWork, logger *slog.Logger) *UsersService {
 	return &UsersService{
 		UnimplementedUsersServiceServer: pb.UnimplementedUsersServiceServer{},
 		handle:                          api.ErrorHandler(NewErrorMarshaler()),

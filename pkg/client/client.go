@@ -6,6 +6,8 @@ import (
 
 	"buf.build/go/protovalidate"
 	"github.com/therenotomorrow/ex"
+	chatv1 "github.com/therenotomorrow/gotes/pkg/api/chat/v1"
+	metricsv1 "github.com/therenotomorrow/gotes/pkg/api/metrics/v1"
 	notesv1 "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
 	usersv1 "github.com/therenotomorrow/gotes/pkg/api/users/v1"
 	"github.com/therenotomorrow/gotes/pkg/services/validate"
@@ -29,6 +31,8 @@ type Config struct {
 type Client struct {
 	notesv1.NotesServiceClient
 	usersv1.UsersServiceClient
+	metricsv1.MetricsServiceClient
+	chatv1.ChatServiceClient
 
 	conn   *grpc.ClientConn
 	config Config
@@ -63,10 +67,12 @@ func New(cfg Config, options ...grpc.DialOption) (*Client, error) {
 	}
 
 	return &Client{
-		NotesServiceClient: notesv1.NewNotesServiceClient(conn),
-		UsersServiceClient: usersv1.NewUsersServiceClient(conn),
-		conn:               conn,
-		config:             cfg,
+		NotesServiceClient:   notesv1.NewNotesServiceClient(conn),
+		UsersServiceClient:   usersv1.NewUsersServiceClient(conn),
+		MetricsServiceClient: metricsv1.NewMetricsServiceClient(conn),
+		ChatServiceClient:    chatv1.NewChatServiceClient(conn),
+		conn:                 conn,
+		config:               cfg,
 	}, nil
 }
 

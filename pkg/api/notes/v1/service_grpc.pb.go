@@ -19,10 +19,11 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	NotesService_ListNotes_FullMethodName    = "/api.notes.v1.NotesService/ListNotes"
-	NotesService_RetrieveNote_FullMethodName = "/api.notes.v1.NotesService/RetrieveNote"
-	NotesService_CreateNote_FullMethodName   = "/api.notes.v1.NotesService/CreateNote"
-	NotesService_DeleteNote_FullMethodName   = "/api.notes.v1.NotesService/DeleteNote"
+	NotesService_ListNotes_FullMethodName         = "/api.notes.v1.NotesService/ListNotes"
+	NotesService_RetrieveNote_FullMethodName      = "/api.notes.v1.NotesService/RetrieveNote"
+	NotesService_CreateNote_FullMethodName        = "/api.notes.v1.NotesService/CreateNote"
+	NotesService_DeleteNote_FullMethodName        = "/api.notes.v1.NotesService/DeleteNote"
+	NotesService_SubscribeToEvents_FullMethodName = "/api.notes.v1.NotesService/SubscribeToEvents"
 )
 
 // NotesServiceClient is the client API for NotesService service.
@@ -39,6 +40,8 @@ type NotesServiceClient interface {
 	CreateNote(ctx context.Context, in *CreateNoteRequest, opts ...grpc.CallOption) (*CreateNoteResponse, error)
 	// DeleteNote deletes a note by its unique identifier.
 	DeleteNote(ctx context.Context, in *DeleteNoteRequest, opts ...grpc.CallOption) (*DeleteNoteResponse, error)
+	// SubscribeToEvents will notify about creation or deletion of notes.
+	SubscribeToEvents(ctx context.Context, in *SubscribeToEventsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SubscribeToEventsResponse], error)
 }
 
 type notesServiceClient struct {
@@ -89,6 +92,25 @@ func (c *notesServiceClient) DeleteNote(ctx context.Context, in *DeleteNoteReque
 	return out, nil
 }
 
+func (c *notesServiceClient) SubscribeToEvents(ctx context.Context, in *SubscribeToEventsRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[SubscribeToEventsResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &NotesService_ServiceDesc.Streams[0], NotesService_SubscribeToEvents_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[SubscribeToEventsRequest, SubscribeToEventsResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NotesService_SubscribeToEventsClient = grpc.ServerStreamingClient[SubscribeToEventsResponse]
+
 // NotesServiceServer is the server API for NotesService service.
 // All implementations must embed UnimplementedNotesServiceServer
 // for forward compatibility.
@@ -103,6 +125,8 @@ type NotesServiceServer interface {
 	CreateNote(context.Context, *CreateNoteRequest) (*CreateNoteResponse, error)
 	// DeleteNote deletes a note by its unique identifier.
 	DeleteNote(context.Context, *DeleteNoteRequest) (*DeleteNoteResponse, error)
+	// SubscribeToEvents will notify about creation or deletion of notes.
+	SubscribeToEvents(*SubscribeToEventsRequest, grpc.ServerStreamingServer[SubscribeToEventsResponse]) error
 	mustEmbedUnimplementedNotesServiceServer()
 }
 
@@ -124,6 +148,9 @@ func (UnimplementedNotesServiceServer) CreateNote(context.Context, *CreateNoteRe
 }
 func (UnimplementedNotesServiceServer) DeleteNote(context.Context, *DeleteNoteRequest) (*DeleteNoteResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method DeleteNote not implemented")
+}
+func (UnimplementedNotesServiceServer) SubscribeToEvents(*SubscribeToEventsRequest, grpc.ServerStreamingServer[SubscribeToEventsResponse]) error {
+	return status.Error(codes.Unimplemented, "method SubscribeToEvents not implemented")
 }
 func (UnimplementedNotesServiceServer) mustEmbedUnimplementedNotesServiceServer() {}
 func (UnimplementedNotesServiceServer) testEmbeddedByValue()                      {}
@@ -218,6 +245,17 @@ func _NotesService_DeleteNote_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _NotesService_SubscribeToEvents_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SubscribeToEventsRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(NotesServiceServer).SubscribeToEvents(m, &grpc.GenericServerStream[SubscribeToEventsRequest, SubscribeToEventsResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type NotesService_SubscribeToEventsServer = grpc.ServerStreamingServer[SubscribeToEventsResponse]
+
 // NotesService_ServiceDesc is the grpc.ServiceDesc for NotesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -242,6 +280,12 @@ var NotesService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _NotesService_DeleteNote_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "SubscribeToEvents",
+			Handler:       _NotesService_SubscribeToEvents_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "api/notes/v1/service.proto",
 }

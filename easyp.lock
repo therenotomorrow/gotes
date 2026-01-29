@@ -1,2 +1,3 @@
 github.com/bufbuild/protovalidate v1.1.0 h1:LNuh5nL7LV1ySMaj/jqjTjqXe2tvkBNDTzV07f2wbVc=
+github.com/googleapis/googleapis v0.0.0-20260123053957-2ac88973cbafba24e4fb6f31038e0c76174ae704 h1:Q0E7f69P9u1x748xehIUv1DMFxQxcTM2Gai+KG7oYrk=
 github.com/protocolbuffers/protobuf-go v1.36.11 h1:C4P8GTeFQJp1wx3GqXmun01jyHxyJaGJ0AVs0AurSuw=

@@ -15,6 +15,9 @@ task --version
 
 psql --version
 # psql (PostgreSQL) 18.1
+
+redis-server --version
+# Redis server v=8.4.0
 ```
 
 ### Download sources
@@ -37,6 +40,7 @@ task tools:install qa # see other recipes by calling `task`
 # apply migrations
 task services:postgres
 task services:goose -- up
+task services:redis
 
 # setup safe development (optional)
 git config --local core.hooksPath .githooks

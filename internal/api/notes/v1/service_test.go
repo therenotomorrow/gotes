@@ -14,9 +14,11 @@ import (
 	"github.com/therenotomorrow/gotes/internal/api/notes/v1/usecases"
 	"github.com/therenotomorrow/gotes/internal/domain/entities"
 	"github.com/therenotomorrow/gotes/internal/domain/types/id"
+	"github.com/therenotomorrow/gotes/internal/domain/types/uuid"
 	"github.com/therenotomorrow/gotes/internal/services/secure"
 	pb "github.com/therenotomorrow/gotes/pkg/api/notes/v1"
 	typespb "github.com/therenotomorrow/gotes/pkg/api/types"
+	"github.com/therenotomorrow/gotes/pkg/services/generate"
 	"github.com/therenotomorrow/gotes/pkg/services/trace"
 	"github.com/therenotomorrow/gotes/pkg/testkit"
 )
@@ -37,8 +39,10 @@ var (
 	}
 )
 
-func TestNotesService_CreateNote(t *testing.T) {
+func TestNotesServiceCreateNote(t *testing.T) {
 	t.Parallel()
+
+	uuid.SetGenerator(generate.NewUUID())
 
 	t.Run("secure", func(t *testing.T) {
 		t.Parallel()
@@ -101,7 +105,8 @@ func TestNotesService_CreateNote(t *testing.T) {
 			ctx      = t.Context()
 			user     = new(entities.User)
 			notes    = mocks.NewMockNotesRepository(t)
-			store    = ports.Store{Notes: notes}
+			events   = mocks.NewMockEventsRepository(t)
+			store    = ports.Store{Notes: notes, Events: events}
 			provider = mocks.NewMockStoreProvider(t)
 		)
 
@@ -117,6 +122,13 @@ func TestNotesService_CreateNote(t *testing.T) {
 
 				return note
 			}, nil)
+		events.On("SaveEvent", ctx, mock.AnythingOfType("*entities.Event")).
+			Return(func(ctx context.Context, event *entities.Event) error {
+				assert.Equal(t, entities.EventTypeCreated, event.EventType)
+				assert.Equal(t, ident, event.Note.ID)
+
+				return nil
+			})
 
 		svc := v1.NewServiceWithProvider(unitOfWork{provider: provider}, provider, log)
 

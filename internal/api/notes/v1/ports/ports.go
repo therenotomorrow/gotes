@@ -14,8 +14,15 @@ type NotesRepository interface {
 	GetNotesByUser(ctx context.Context, user *entities.User) ([]*entities.Note, error)
 }
 
+type EventsRepository interface {
+	SaveEvent(ctx context.Context, event *entities.Event) error
+	GetEvent(ctx context.Context, user *entities.User) (*entities.Event, error)
+	CountEvents(ctx context.Context, user *entities.User) (int32, error)
+}
+
 type Store struct {
-	Notes NotesRepository
+	Notes  NotesRepository
+	Events EventsRepository
 }
 
 type StoreProvider interface {

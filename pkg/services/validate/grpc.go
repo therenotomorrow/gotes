@@ -15,6 +15,10 @@ import (
 	"google.golang.org/protobuf/protoadapt"
 )
 
+const (
+	numParts = 2
+)
+
 func UnaryServerInterceptor(validator protovalidate.Validator) grpc.UnaryServerInterceptor {
 	interceptor := validateInterceptor(validator)
 
@@ -51,10 +55,6 @@ func UnaryClientInterceptor(validator protovalidate.Validator) grpc.UnaryClientI
 		return invoker(ctx, method, request, reply, conn, opts...)
 	}
 }
-
-const (
-	numParts = 2
-)
 
 func validateInterceptor(validator protovalidate.Validator) func(message proto.Message) error {
 	return func(message proto.Message) error {

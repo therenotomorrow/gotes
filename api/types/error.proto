@@ -30,6 +30,12 @@ enum ErrorCode {
   // The caller does not have permission to perform the requested operation.
   ERROR_CODE_PERMISSION_DENIED = 7;
 
+  // General business logic error (e.g., domain rule violation).
+  ERROR_CODE_BUSINESS = 8;
+
+  // The provided text is invalid.
+  ERROR_CODE_INVALID_TEXT = 9;
+
   // Internal server error.
   ERROR_CODE_INTERNAL = 99;
 }

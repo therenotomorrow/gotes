@@ -8,6 +8,10 @@ import (
 	"github.com/avito-tech/go-transaction-manager/trm/v2/manager"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/therenotomorrow/ex"
+	commandsnotes "github.com/therenotomorrow/gotes/internal/storages/postgres/commands/notes"
+	commandsusers "github.com/therenotomorrow/gotes/internal/storages/postgres/commands/users"
+	queriesnotes "github.com/therenotomorrow/gotes/internal/storages/postgres/queries/notes"
+	queriesusers "github.com/therenotomorrow/gotes/internal/storages/postgres/queries/users"
 	"github.com/therenotomorrow/gotes/pkg/services/trace"
 	"github.com/therenotomorrow/gotes/pkg/services/validate"
 )
@@ -24,6 +28,7 @@ type Postgres struct {
 	trm    *manager.Manager
 	ctx    *pgxv5.CtxGetter
 	pool   *pgxpool.Pool
+	tracer *trace.Tracer
 	config Config
 }
 
@@ -39,18 +44,20 @@ func New(cfg Config, logger *slog.Logger) (*Postgres, error) {
 	}
 
 	tracer := trace.Service("postgres", logger)
-	manOpts := []manager.Opt{
-		manager.WithLog(log(func(ctx context.Context, msg string) { tracer.Warning(ctx, msg) })),
+	options := []manager.Opt{
+		manager.WithLog(log(func(ctx context.Context, msg string) {
+			tracer.Warning(ctx, msg)
+		})),
 	}
 
-	trm, err := manager.New(pgxv5.NewDefaultFactory(pool), manOpts...)
+	trm, err := manager.New(pgxv5.NewDefaultFactory(pool), options...)
 	if err != nil {
 		return nil, ErrInvalidConfig.Because(err)
 	}
 
 	ctx := pgxv5.DefaultCtxGetter
 
-	return &Postgres{trm: trm, ctx: ctx, config: cfg, pool: pool}, nil
+	return &Postgres{trm: trm, ctx: ctx, config: cfg, tracer: tracer, pool: pool}, nil
 }
 
 func MustNew(cfg Config, logger *slog.Logger) *Postgres {
@@ -69,6 +76,19 @@ func (db *Postgres) Conn(ctx context.Context) DBTX {
 
 func (db *Postgres) Close() {
 	db.pool.Close()
+}
+
+type DBTX interface {
+	commandsnotes.DBTX
+	commandsusers.DBTX
+	queriesusers.DBTX
+	queriesnotes.DBTX
+}
+
+type Database interface {
+	Tx(ctx context.Context, fn func(ctx context.Context) error) error
+	Conn(ctx context.Context) DBTX
+	Close()
 }
 
 type log func(ctx context.Context, msg string)
