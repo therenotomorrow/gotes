@@ -2,8 +2,10 @@ package server
 
 import (
 	"context"
+	"errors"
 	"log/slog"
 	"net"
+	"net/http"
 	"os/signal"
 	"sync"
 	"syscall"
@@ -35,15 +37,16 @@ import (
 )
 
 type Server struct {
-	deps   *Dependencies
-	logger *slog.Logger
-	grpc   *grpc.Server
-	config *config.Config
-	once   sync.Once
+	deps    *Dependencies
+	logger  *slog.Logger
+	grpc    *grpc.Server
+	config  *config.Config
+	gateway *http.Server
+	once    sync.Once
 }
 
 func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
-	tracer := trace.New(logger)
+	tracer := trace.Service("gotes", logger)
 	validator := ex.Critical(protovalidate.New())
 
 	server := grpc.NewServer(
@@ -93,7 +96,9 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 		reflection.Register(server)
 	}
 
-	return &Server{logger: logger, grpc: server, config: cfg, deps: deps, once: sync.Once{}}
+	gateway := NewGateway(cfg, logger)
+
+	return &Server{logger: logger, gateway: gateway, grpc: server, config: cfg, deps: deps, once: sync.Once{}}
 }
 
 func Default(cfg *config.Config) *Server {
@@ -123,22 +128,38 @@ func (s *Server) Serve(ctx context.Context) {
 		lis = ex.Critical(lc.Listen(ctx, "tcp", s.config.Server.Address))
 	})
 
-	s.logger.InfoContext(ctx, "listen...", "address", s.config.Server.Address)
-
 	defer s.Stop(ctx)
 
 	go func() {
+		s.logger.InfoContext(ctx, "listen server...", "address", s.config.Server.Address)
+
 		err := s.grpc.Serve(lis)
 
 		ex.Panic(err)
+	}()
+
+	go func() {
+		s.logger.InfoContext(ctx, "listen gateway...", "address", s.config.Server.Address)
+
+		err := s.gateway.ListenAndServe()
+
+		switch {
+		case errors.Is(err, http.ErrServerClosed):
+		case err != nil:
+			ex.Panic(err)
+		}
 	}()
 
 	<-ctx.Done()
 }
 
 func (s *Server) Stop(ctx context.Context) {
-	s.logger.InfoContext(ctx, "shutdown...")
-
+	s.logger.InfoContext(ctx, "shutdown server...")
 	s.grpc.Stop()
+
+	s.logger.InfoContext(ctx, "shutdown gateway...")
+	err := s.gateway.Shutdown(ctx)
+
+	ex.Skip(err)
 	s.deps.Close()
 }

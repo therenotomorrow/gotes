@@ -1,0 +1,368 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Notes Service",
+    "version": "1.0"
+  },
+  "tags": [
+    {
+      "name": "api.notes.v1.NotesService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/api/v1/notes": {
+      "get": {
+        "summary": "ListNotes returns a list of notes.",
+        "operationId": "NotesService_ListNotes",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1ListNotesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "api.notes.v1.NotesService"
+        ]
+      },
+      "post": {
+        "summary": "CreateNote creates a new note and returns it with the unique identifier.",
+        "operationId": "NotesService_CreateNote",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateNoteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "description": "CreateNoteRequest is the request message for creating a new note.",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateNoteRequest"
+            }
+          }
+        ],
+        "tags": [
+          "api.notes.v1.NotesService"
+        ]
+      }
+    },
+    "/api/v1/notes/events": {
+      "get": {
+        "summary": "SubscribeToEvents will notify about creation or deletion of notes.",
+        "operationId": "NotesService_SubscribeToEvents",
+        "responses": {
+          "200": {
+            "description": "A successful response.(streaming responses)",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "result": {
+                  "$ref": "#/definitions/v1SubscribeToEventsResponse"
+                },
+                "error": {
+                  "$ref": "#/definitions/rpcStatus"
+                }
+              },
+              "title": "Stream result of v1SubscribeToEventsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "api.notes.v1.NotesService"
+        ]
+      }
+    },
+    "/api/v1/notes/{id.value}": {
+      "get": {
+        "summary": "RetrieveNote returns a single note by its unique identifier.",
+        "operationId": "NotesService_RetrieveNote",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1RetrieveNoteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id.value",
+            "description": "The numeric value of the ID.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "api.notes.v1.NotesService"
+        ]
+      },
+      "delete": {
+        "summary": "DeleteNote deletes a note by its unique identifier.",
+        "operationId": "NotesService_DeleteNote",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteNoteResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id.value",
+            "description": "The numeric value of the ID.",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "int64"
+          }
+        ],
+        "tags": [
+          "api.notes.v1.NotesService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string",
+          "description": "A URL/resource name that uniquely identifies the type of the serialized\nprotocol buffer message. This string must contain at least\none \"/\" character. The last segment of the URL's path must represent\nthe fully qualified name of the type (as in\n`path/google.protobuf.Duration`). The name should be in a canonical form\n(e.g., leading \".\" is not accepted).\n\nIn practice, teams usually precompile into the binary all types that they\nexpect it to use in the context of Any. However, for URLs which use the\nscheme `http`, `https`, or no scheme, one can optionally set up a type\nserver that maps type URLs to message definitions as follows:\n\n* If no scheme is provided, `https` is assumed.\n* An HTTP GET on the URL must yield a [google.protobuf.Type][]\n  value in binary format, or produce an error.\n* Applications are allowed to cache lookup results based on the\n  URL, or have them precompiled into a binary to avoid any\n  lookup. Therefore, binary compatibility needs to be preserved\n  on changes to types. (Use versioned type names to manage\n  breaking changes.)\n\nNote: this functionality is not currently available in the official\nprotobuf release, and it is not used for type URLs beginning with\ntype.googleapis.com. As of May 2023, there are no widely used type server\nimplementations and no plans to implement one.\n\nSchemes other than `http`, `https` (or the empty scheme) might be\nused with implementation specific semantics."
+        }
+      },
+      "additionalProperties": {},
+      "description": "`Any` contains an arbitrary serialized protocol buffer message along with a\nURL that describes the type of the serialized message.\n\nProtobuf library provides support to pack/unpack Any values in the form\nof utility functions or additional generated methods of the Any type.\n\nExample 1: Pack and unpack a message in C++.\n\n    Foo foo = ...;\n    Any any;\n    any.PackFrom(foo);\n    ...\n    if (any.UnpackTo(\u0026foo)) {\n      ...\n    }\n\nExample 2: Pack and unpack a message in Java.\n\n    Foo foo = ...;\n    Any any = Any.pack(foo);\n    ...\n    if (any.is(Foo.class)) {\n      foo = any.unpack(Foo.class);\n    }\n    // or ...\n    if (any.isSameTypeAs(Foo.getDefaultInstance())) {\n      foo = any.unpack(Foo.getDefaultInstance());\n    }\n\n Example 3: Pack and unpack a message in Python.\n\n    foo = Foo(...)\n    any = Any()\n    any.Pack(foo)\n    ...\n    if any.Is(Foo.DESCRIPTOR):\n      any.Unpack(foo)\n      ...\n\n Example 4: Pack and unpack a message in Go\n\n     foo := \u0026pb.Foo{...}\n     any, err := anypb.New(foo)\n     if err != nil {\n       ...\n     }\n     ...\n     foo := \u0026pb.Foo{}\n     if err := any.UnmarshalTo(foo); err != nil {\n       ...\n     }\n\nThe pack methods provided by protobuf library will by default use\n'type.googleapis.com/full.type.name' as the type URL and the unpack\nmethods only use the fully qualified type name after the last '/'\nin the type URL, for example \"foo.bar.com/x/y.z\" will yield type\nname \"y.z\".\n\nJSON\n====\nThe JSON representation of an `Any` value uses the regular\nrepresentation of the deserialized, embedded message, with an\nadditional field `@type` which contains the type URL. Example:\n\n    package google.profile;\n    message Person {\n      string first_name = 1;\n      string last_name = 2;\n    }\n\n    {\n      \"@type\": \"type.googleapis.com/google.profile.Person\",\n      \"firstName\": \u003cstring\u003e,\n      \"lastName\": \u003cstring\u003e\n    }\n\nIf the embedded message type is well-known and has a custom JSON\nrepresentation, that representation will be embedded adding a field\n`value` which holds the custom JSON in addition to the `@type`\nfield. Example (for message [google.protobuf.Duration][]):\n\n    {\n      \"@type\": \"type.googleapis.com/google.protobuf.Duration\",\n      \"value\": \"1.212s\"\n    }"
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The status code, which should be an enum value of\n[google.rpc.Code][google.rpc.Code]."
+        },
+        "message": {
+          "type": "string",
+          "description": "A developer-facing error message, which should be in English. Any\nuser-facing error message should be localized and sent in the\n[google.rpc.Status.details][google.rpc.Status.details] field, or localized\nby the client."
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          },
+          "description": "A list of messages that carry the error details.  There is a common set of\nmessage types for APIs to use."
+        }
+      },
+      "description": "The `Status` type defines a logical error model that is suitable for\ndifferent programming environments, including REST APIs and RPC APIs. It is\nused by [gRPC](https://github.com/grpc). Each `Status` message contains\nthree pieces of data: error code, error message, and error details.\n\nYou can find out more about this error model and how to work with it in the\n[API Design Guide](https://cloud.google.com/apis/design/errors)."
+    },
+    "typesID": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "format": "int64",
+          "description": "The numeric value of the ID."
+        }
+      },
+      "description": "ID represents a unique identifier for an entity.\n\nTypically used as a wrapper around a numeric value to ensure type safety\nacross different entities."
+    },
+    "v1CreateNoteRequest": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Title of the new note."
+        },
+        "content": {
+          "type": "string",
+          "description": "Content/body of the new note."
+        }
+      },
+      "description": "CreateNoteRequest is the request message for creating a new note."
+    },
+    "v1CreateNoteResponse": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "$ref": "#/definitions/v1Note",
+          "description": "The created note, including its generated ID and timestamps."
+        }
+      },
+      "description": "CreateNoteResponse is the response message after creating a note."
+    },
+    "v1DeleteNoteResponse": {
+      "type": "object",
+      "description": "DeleteNoteResponse is the response message after deleting a note."
+    },
+    "v1Event": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the event."
+        },
+        "type": {
+          "$ref": "#/definitions/v1EventType",
+          "description": "Type of the event."
+        },
+        "noteId": {
+          "$ref": "#/definitions/typesID",
+          "description": "ID of the note associated with this event."
+        },
+        "eventTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the event occurred."
+        }
+      },
+      "description": "Event represents a system notification about a change in notes."
+    },
+    "v1EventType": {
+      "type": "string",
+      "enum": [
+        "EVENT_TYPE_UNKNOWN",
+        "EVENT_TYPE_CREATED",
+        "EVENT_TYPE_DELETED"
+      ],
+      "default": "EVENT_TYPE_UNKNOWN",
+      "description": "EventType defines the type of action that occurred to a note.\n\n - EVENT_TYPE_UNKNOWN: Default value, should not be used.\n - EVENT_TYPE_CREATED: Indicates that a new note has been created.\n - EVENT_TYPE_DELETED: Indicates that a note has been deleted."
+    },
+    "v1ListNotesResponse": {
+      "type": "object",
+      "properties": {
+        "notes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Note"
+          },
+          "description": "List of notes."
+        }
+      },
+      "description": "ListNotesResponse is the response message containing a list of notes."
+    },
+    "v1Note": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/typesID",
+          "description": "Unique identifier of the note."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the note."
+        },
+        "content": {
+          "type": "string",
+          "description": "Content/body of the note."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the note was created."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the note was last updated."
+        }
+      },
+      "description": "Note represents a single note entity."
+    },
+    "v1RetrieveNoteResponse": {
+      "type": "object",
+      "properties": {
+        "note": {
+          "$ref": "#/definitions/v1Note",
+          "description": "The requested note."
+        }
+      },
+      "description": "RetrieveNoteResponse is the response message for a single note retrieval."
+    },
+    "v1SubscribeToEventsResponse": {
+      "type": "object",
+      "properties": {
+        "event": {
+          "$ref": "#/definitions/v1Event",
+          "description": "A specific event that just occurred."
+        },
+        "unread": {
+          "$ref": "#/definitions/v1Unread",
+          "description": "Information about unread events (e.g., sent on initial connection)."
+        }
+      },
+      "description": "SubscribeToEventsResponse is the response message in the event stream."
+    },
+    "v1Unread": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total count of unread events."
+        }
+      },
+      "description": "Unread represents information about the number of unread events."
+    }
+  },
+  "securityDefinitions": {
+    "Bearer": {
+      "type": "apiKey",
+      "name": "Authorization",
+      "in": "header"
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
+}

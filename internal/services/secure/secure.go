@@ -10,7 +10,7 @@ import (
 type secureCtx string
 
 const (
-	authKey             = "authorization"
+	AuthKey             = "authorization"
 	secureKey secureCtx = "secure"
 
 	errMissingUserInContext ex.Error = "missing user in context"

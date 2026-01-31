@@ -67,10 +67,22 @@ func (wss *wrappedServerStream) RecvMsg(m any) error {
 
 func LoggingStreamServerInterceptor(logger log) grpc.StreamServerInterceptor {
 	return func(srv any, stream grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
+		args := []any{"method", info.FullMethod}
+		level := slog.LevelInfo
+
 		wrapped := &wrappedServerStream{ServerStream: stream, logger: logger}
 
-		logger.Log(wrapped.Context(), slog.LevelInfo, "start streaming", "method", info.FullMethod)
+		logger.Log(wrapped.Context(), level, "start streaming", args...)
 
-		return handler(srv, wrapped)
+		err := handler(srv, wrapped)
+		if err != nil {
+			level = slog.LevelError
+
+			args = append(args, "error", err)
+		}
+
+		logger.Log(wrapped.Context(), level, "end streaming", args...)
+
+		return err
 	}
 }

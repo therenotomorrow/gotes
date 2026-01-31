@@ -7,6 +7,8 @@
 package v1
 
 import (
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -24,15 +26,21 @@ var File_api_notes_v1_service_proto protoreflect.FileDescriptor
 
 const file_api_notes_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1aapi/notes/v1/service.proto\x12\fapi.notes.v1\x1a\x1bapi/notes/v1/messages.proto2\xbd\x03\n" +
-	"\fNotesService\x12L\n" +
-	"\tListNotes\x12\x1e.api.notes.v1.ListNotesRequest\x1a\x1f.api.notes.v1.ListNotesResponse\x12U\n" +
-	"\fRetrieveNote\x12!.api.notes.v1.RetrieveNoteRequest\x1a\".api.notes.v1.RetrieveNoteResponse\x12O\n" +
+	"\x1aapi/notes/v1/service.proto\x12\fapi.notes.v1\x1a\x1bapi/notes/v1/messages.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\xd1\x04\n" +
+	"\fNotesService\x12c\n" +
+	"\tListNotes\x12\x1e.api.notes.v1.ListNotesRequest\x1a\x1f.api.notes.v1.ListNotesResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/api/v1/notes\x12w\n" +
+	"\fRetrieveNote\x12!.api.notes.v1.RetrieveNoteRequest\x1a\".api.notes.v1.RetrieveNoteResponse\" \x82\xd3\xe4\x93\x02\x1a\x12\x18/api/v1/notes/{id.value}\x12i\n" +
 	"\n" +
-	"CreateNote\x12\x1f.api.notes.v1.CreateNoteRequest\x1a .api.notes.v1.CreateNoteResponse\x12O\n" +
+	"CreateNote\x12\x1f.api.notes.v1.CreateNoteRequest\x1a .api.notes.v1.CreateNoteResponse\"\x18\x82\xd3\xe4\x93\x02\x12:\x01*\"\r/api/v1/notes\x12q\n" +
 	"\n" +
-	"DeleteNote\x12\x1f.api.notes.v1.DeleteNoteRequest\x1a .api.notes.v1.DeleteNoteResponse\x12f\n" +
-	"\x11SubscribeToEvents\x12&.api.notes.v1.SubscribeToEventsRequest\x1a'.api.notes.v1.SubscribeToEventsResponse0\x01B3Z1github.com/therenotomorrow/gotes/pkg/api/notes/v1b\x06proto3"
+	"DeleteNote\x12\x1f.api.notes.v1.DeleteNoteRequest\x1a .api.notes.v1.DeleteNoteResponse\" \x82\xd3\xe4\x93\x02\x1a*\x18/api/v1/notes/{id.value}\x12\x84\x01\n" +
+	"\x11SubscribeToEvents\x12&.api.notes.v1.SubscribeToEventsRequest\x1a'.api.notes.v1.SubscribeToEventsResponse\"\x1c\x82\xd3\xe4\x93\x02\x16\x12\x14/api/v1/notes/events0\x01B{\x92AE\x12\x14\n" +
+	"\rNotes Service2\x031.0Z\x1f\n" +
+	"\x1d\n" +
+	"\x06Bearer\x12\x13\b\x02\x1a\rAuthorization \x02b\f\n" +
+	"\n" +
+	"\n" +
+	"\x06Bearer\x12\x00Z1github.com/therenotomorrow/gotes/pkg/api/notes/v1b\x06proto3"
 
 var file_api_notes_v1_service_proto_goTypes = []any{
 	(*ListNotesRequest)(nil),          // 0: api.notes.v1.ListNotesRequest

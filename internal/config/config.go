@@ -31,8 +31,21 @@ type KeepAlive struct {
 	EnforcementPolicy EnforcementPolicy `json:"enforcementPolicy"`
 }
 
+type CORS struct {
+	AllowedOrigins string   `json:"allowedOrigins"`
+	AllowedHeaders string   `json:"allowedHeaders"`
+	AllowedMethods []string `json:"allowedMethods"`
+}
+
+type Gateway struct {
+	Address string `env:"GOTES_GATEWAY_ADDRESS,required" json:"gateway"`
+	CORS    CORS   `                                     json:"cors"`
+}
+
 type Server struct {
 	Address              string    `env:"GOTES_SERVER_ADDRESS,required" json:"address"`
+	Gateway              Gateway   `                                    json:"gateway"`
+	Secure               bool      `env:"GOTES_SERVER_SECURE,required"  json:"secure"`
 	MaxConcurrentStreams uint32    `                                    json:"maxConcurrentStreams"`
 	KeepAlive            KeepAlive `                                    json:"keepAlive"`
 }
@@ -83,6 +96,11 @@ func New(filenames ...string) (*Config, error) {
 			MinTime:             10 * time.Second,
 			PermitWithoutStream: false,
 		},
+	}
+	cfg.Server.Gateway.CORS = CORS{
+		AllowedOrigins: "*",
+		AllowedHeaders: "*",
+		AllowedMethods: []string{"GET", "POST", "DELETE", "HEAD", "OPTIONS"},
 	}
 
 	return cfg, nil

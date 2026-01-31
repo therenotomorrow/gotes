@@ -47,6 +47,24 @@ tasks:
     cmds:
       - go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@{{.VERSION}}
 
+  grpc-gateway:
+    desc: https://github.com/grpc-ecosystem/grpc-gateway/tree/main/protoc-gen-grpc-gateway
+    vars:
+      VERSION: 'v2.27.6'
+      NAME: 'protoc-gen-grpc-gateway'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@{{.VERSION}}
+
+  grpc-swagger:
+    desc: https://github.com/grpc-ecosystem/grpc-gateway/tree/main/protoc-gen-openapiv2
+    vars:
+      VERSION: 'v2.27.6'
+      NAME: 'protoc-gen-openapiv2'
+    <<: *task_tmpl
+    cmds:
+      - go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@{{.VERSION}}
+
   easyp:
     desc: https://github.com/easyp-tech/easyp
     vars:
@@ -109,6 +127,8 @@ tasks:
       - betteralign
       - protobuf-go
       - grpc-go
+      - grpc-gateway
+      - grpc-swagger
       - easyp
       - grpcurl
       - mockery
