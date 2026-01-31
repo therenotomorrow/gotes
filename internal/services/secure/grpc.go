@@ -63,7 +63,7 @@ func authenticateInterceptor(
 			return ctx, status.Error(codes.Unauthenticated, "missing metadata")
 		}
 
-		vals := md.Get(authKey)
+		vals := md.Get(AuthKey)
 		if len(vals) == 0 {
 			return ctx, status.Error(codes.Unauthenticated, "missing token")
 		}

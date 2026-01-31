@@ -5,12 +5,30 @@ package api.users.v1;
 option go_package = "github.com/therenotomorrow/gotes/pkg/api/users/v1";
 
 import "api/users/v1/messages.proto";
+import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+  info: {
+    title: "Users Service";
+    version: "1.0";
+  };
+};
 
 // UsersService provides user registration and authentication-related operations.
 service UsersService {
   // RegisterUser registers a new user in the system.
-  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse);
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/register",
+      body: "*"
+    };
+  }
 
   // RefreshToken refreshes an access token using a valid refresh token.
-  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users/refresh",
+      body: "*"
+    };
+  }
 }

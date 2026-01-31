@@ -7,6 +7,8 @@
 package v1
 
 import (
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -24,10 +26,11 @@ var File_api_users_v1_service_proto protoreflect.FileDescriptor
 
 const file_api_users_v1_service_proto_rawDesc = "" +
 	"\n" +
-	"\x1aapi/users/v1/service.proto\x12\fapi.users.v1\x1a\x1bapi/users/v1/messages.proto2\xbc\x01\n" +
-	"\fUsersService\x12U\n" +
-	"\fRegisterUser\x12!.api.users.v1.RegisterUserRequest\x1a\".api.users.v1.RegisterUserResponse\x12U\n" +
-	"\fRefreshToken\x12!.api.users.v1.RefreshTokenRequest\x1a\".api.users.v1.RefreshTokenResponseB3Z1github.com/therenotomorrow/gotes/pkg/api/users/v1b\x06proto3"
+	"\x1aapi/users/v1/service.proto\x12\fapi.users.v1\x1a\x1bapi/users/v1/messages.proto\x1a\x1cgoogle/api/annotations.proto\x1a.protoc-gen-openapiv2/options/annotations.proto2\x81\x02\n" +
+	"\fUsersService\x12x\n" +
+	"\fRegisterUser\x12!.api.users.v1.RegisterUserRequest\x1a\".api.users.v1.RegisterUserResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/api/v1/users/register\x12w\n" +
+	"\fRefreshToken\x12!.api.users.v1.RefreshTokenRequest\x1a\".api.users.v1.RefreshTokenResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/api/v1/users/refreshBL\x92A\x16\x12\x14\n" +
+	"\rUsers Service2\x031.0Z1github.com/therenotomorrow/gotes/pkg/api/users/v1b\x06proto3"
 
 var file_api_users_v1_service_proto_goTypes = []any{
 	(*RegisterUserRequest)(nil),  // 0: api.users.v1.RegisterUserRequest
