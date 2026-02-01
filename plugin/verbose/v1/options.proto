@@ -1,8 +1,8 @@
 syntax = "proto3";
 
-package plugin.verbose.v1.options;
+package verbose.v1;
 
-option go_package = "github.com/therenotomorrow/gotes/plugin/verbose/v1/options";
+option go_package = "github.com/therenotomorrow/gotes/plugin/verbose/v1";
 
 import "google/protobuf/descriptor.proto";
 

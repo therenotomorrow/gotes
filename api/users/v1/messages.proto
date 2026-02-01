@@ -6,7 +6,7 @@ option go_package = "github.com/therenotomorrow/gotes/pkg/api/users/v1";
 
 import "api/types/id.proto";
 import "buf/validate/validate.proto";
-import "plugin/verbose/v1/options/options.proto";
+import "verbose/v1/options.proto";
 
 // User represents a single user entity.
 message User {
@@ -21,7 +21,7 @@ message User {
 
   // Authentication token associated with the user.
   string token = 4 [
-    (plugin.verbose.v1.options.noformat) = true
+    (verbose.v1.noformat) = true
   ];
 }
 
@@ -43,7 +43,7 @@ message RegisterUserRequest {
   string password = 3 [
     (buf.validate.field).required = true,
     (buf.validate.field).string.min_len = 8,
-    (plugin.verbose.v1.options.noformat) = true
+    (verbose.v1.noformat) = true
   ];
 }
 
