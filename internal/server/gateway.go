@@ -21,7 +21,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func NewGateway(cfg *config.Config, logger *slog.Logger) *http.Server {
+func NewGateway(cfg *config.Config, logger *slog.Logger) (*http.Server, error) {
 	ctx := context.Background()
 	tracer := trace.Service("gateway", logger)
 
@@ -32,7 +32,6 @@ func NewGateway(cfg *config.Config, logger *slog.Logger) *http.Server {
 
 	options := []grpc.DialOption{grpc.WithTransportCredentials(creds)}
 	handler := http.NewServeMux()
-	handler.Handle("GET /docs/", http.StripPrefix("/docs", http.FileServer(http.FS(swagger.Content))))
 
 	// ---- NotesService
 	notesGateway := runtime.NewServeMux()
@@ -43,13 +42,13 @@ func NewGateway(cfg *config.Config, logger *slog.Logger) *http.Server {
 		TrimSlashMiddleware,
 		WebSocketMiddleware,
 	}
+
 	err := pbnotesv1.RegisterNotesServiceHandlerFromEndpoint(ctx, notesGateway, cfg.Server.Address, options)
-	ex.Panic(err)
-	handler.Handle("/api/v1/", ApplyMiddlewares(notesGateway, notesMiddlewares...))
-	handler.Handle(
-		"GET /docs/notes/",
-		http.StripPrefix("/docs/notes", http.FileServer(http.FS(openapinotesv1.Content))),
-	)
+	if err != nil {
+		return nil, ex.Unexpected(err)
+	}
+
+	handler.Handle("/api/v1/notes/", ApplyMiddlewares(notesGateway, notesMiddlewares...))
 
 	// ---- UsersService
 	usersGateway := runtime.NewServeMux()
@@ -58,17 +57,36 @@ func NewGateway(cfg *config.Config, logger *slog.Logger) *http.Server {
 		LoggingMiddleware(tracer),
 		CORSMiddleware(cfg.Server.Gateway.CORS),
 	}
+
 	err = pbusersv1.RegisterUsersServiceHandlerFromEndpoint(ctx, usersGateway, cfg.Server.Address, options)
-	ex.Panic(err)
+	if err != nil {
+		return nil, ex.Unexpected(err)
+	}
+
 	handler.Handle("/api/v1/users/", ApplyMiddlewares(usersGateway, usersMiddlewares...))
-	handler.Handle(
-		"GET /docs/users/",
-		http.StripPrefix("/docs/users", http.FileServer(http.FS(openapiusersv1.Content))),
-	)
+
+	HandleDocs(handler)
 
 	gateway := new(http.Server)
 	gateway.Addr = cfg.Server.Gateway.Address
 	gateway.Handler = wsproxy.WebsocketProxy(handler)
 
-	return gateway
+	return gateway, nil
+}
+
+func HandleDocs(handler *http.ServeMux) {
+	handler.Handle(
+		"GET /docs/",
+		http.StripPrefix("/docs", http.FileServer(http.FS(swagger.Content))),
+	)
+
+	handler.Handle(
+		"GET /docs/notes/",
+		http.StripPrefix("/docs/notes", http.FileServer(http.FS(openapinotesv1.Content))),
+	)
+
+	handler.Handle(
+		"GET /docs/users/",
+		http.StripPrefix("/docs/users", http.FileServer(http.FS(openapiusersv1.Content))),
+	)
 }

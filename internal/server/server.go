@@ -45,7 +45,7 @@ type Server struct {
 	once    sync.Once
 }
 
-func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
+func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) (*Server, error) {
 	tracer := trace.Service("gotes", logger)
 	validator := ex.Critical(protovalidate.New())
 
@@ -96,9 +96,18 @@ func New(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
 		reflection.Register(server)
 	}
 
-	gateway := NewGateway(cfg, logger)
+	gateway, err := NewGateway(cfg, logger)
+	if err != nil {
+		return nil, err
+	}
 
-	return &Server{logger: logger, gateway: gateway, grpc: server, config: cfg, deps: deps, once: sync.Once{}}
+	return &Server{logger: logger, gateway: gateway, grpc: server, config: cfg, deps: deps, once: sync.Once{}}, nil
+}
+
+func MustNew(cfg *config.Config, deps *Dependencies, logger *slog.Logger) *Server {
+	server, err := New(cfg, deps, logger)
+
+	return ex.Critical(server, err)
 }
 
 func Default(cfg *config.Config) *Server {
@@ -106,7 +115,7 @@ func Default(cfg *config.Config) *Server {
 	database := postgres.MustNew(postgres.Config{DSN: cfg.Postgres.DSN}, logger)
 	rdb := redis.MustNew(redis.Config{Address: cfg.Redis.Address, Password: cfg.Redis.Password}, logger)
 
-	return New(cfg, &Dependencies{
+	return MustNew(cfg, &Dependencies{
 		Database:       database,
 		Redis:          rdb,
 		Authenticator:  secure.NewTokenAuthenticator(database),
