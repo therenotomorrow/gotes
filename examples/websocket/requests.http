@@ -1,0 +1,40 @@
+@address=127.0.0.1:8001
+
+### Receiving token via user registration
+POST http://{{address}}/api/v1/users/register
+Content-Type: application/json
+
+{
+  "name": "Kirill",
+  "email": "my@mail.com",
+  "password": "top-secret"
+}
+###
+
+@token=<placeholder>
+
+### Create note
+POST http://{{address}}/api/v1/notes/
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "title": "title 1",
+  "content": "content number 1"
+}
+###
+
+@ident=<placeholder>
+
+### List notes
+GET http://{{address}}/api/v1/notes/
+Content-Type: application/json
+Authorization: {{token}}
+
+### Delete note
+DELETE http://{{address}}/api/v1/notes/{{ident}}
+Content-Type: application/json
+Authorization: {{token}}
+
+### Receiving events
+WEBSOCKET ws://{{address}}/api/v1/notes/events?token={{token}}
