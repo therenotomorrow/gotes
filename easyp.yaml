@@ -11,14 +11,13 @@ lint:
 
   ignore_only:
     PACKAGE_VERSION_SUFFIX: ['api/types/']
-    PACKAGE_DIRECTORY_MATCH: ['plugin/verbose']
 
 deps:
   - github.com/protocolbuffers/protobuf-go@v1.36.11
   - github.com/bufbuild/protovalidate@v1.1.0
   - github.com/googleapis/googleapis@v0.0.0-20260130211554-c0fcb35628690e9eb15dcefae41c651c67cd050b
   - github.com/grpc-ecosystem/grpc-gateway@v0.0.0-20260131054211-945ff6b6346e6c02d0a99c0c13370f230bf7ad40
-  - github.com/therenotomorrow/gotes@4a08bd6961746327ec225b0ad3cf4ffb063be8b9
+  - github.com/therenotomorrow/gotes@fb5d599eea12c0d3eb795f84e8cc70321b6c54c7
 
 generate:
   inputs:

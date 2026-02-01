@@ -26,7 +26,7 @@ var file_plugin_verbose_v1_options_proto_extTypes = []protoimpl.ExtensionInfo{
 		ExtendedType:  (*descriptorpb.FieldOptions)(nil),
 		ExtensionType: (*bool)(nil),
 		Field:         50000,
-		Name:          "verbose.v1.noformat",
+		Name:          "plugin.verbose.v1.noformat",
 		Tag:           "varint,50000,opt,name=noformat",
 		Filename:      "plugin/verbose/v1/options.proto",
 	},
@@ -42,15 +42,14 @@ var File_plugin_verbose_v1_options_proto protoreflect.FileDescriptor
 
 const file_plugin_verbose_v1_options_proto_rawDesc = "" +
 	"\n" +
-	"\x1fplugin/verbose/v1/options.proto\x12\n" +
-	"verbose.v1\x1a google/protobuf/descriptor.proto:;\n" +
+	"\x1fplugin/verbose/v1/options.proto\x12\x11plugin.verbose.v1\x1a google/protobuf/descriptor.proto:;\n" +
 	"\bnoformat\x12\x1d.google.protobuf.FieldOptions\x18І\x03 \x01(\bR\bnoformatB4Z2github.com/therenotomorrow/gotes/plugin/verbose/v1b\x06proto3"
 
 var file_plugin_verbose_v1_options_proto_goTypes = []any{
 	(*descriptorpb.FieldOptions)(nil), // 0: google.protobuf.FieldOptions
 }
 var file_plugin_verbose_v1_options_proto_depIdxs = []int32{
-	0, // 0: verbose.v1.noformat:extendee -> google.protobuf.FieldOptions
+	0, // 0: plugin.verbose.v1.noformat:extendee -> google.protobuf.FieldOptions
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name

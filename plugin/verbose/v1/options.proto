@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package verbose.v1;
+package plugin.verbose.v1;
 
 option go_package = "github.com/therenotomorrow/gotes/plugin/verbose/v1";
 
