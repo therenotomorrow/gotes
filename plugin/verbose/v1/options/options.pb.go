@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.11
 // 	protoc        v6.33.4
-// source: plugin/verbose/v1/options.proto
+// source: plugin/verbose/v1/options/options.proto
 
 package options
 
@@ -21,35 +21,35 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-var file_plugin_verbose_v1_options_proto_extTypes = []protoimpl.ExtensionInfo{
+var file_plugin_verbose_v1_options_options_proto_extTypes = []protoimpl.ExtensionInfo{
 	{
 		ExtendedType:  (*descriptorpb.FieldOptions)(nil),
 		ExtensionType: (*bool)(nil),
 		Field:         50000,
-		Name:          "verbose.v1.options.noformat",
+		Name:          "plugin.verbose.v1.options.noformat",
 		Tag:           "varint,50000,opt,name=noformat",
-		Filename:      "plugin/verbose/v1/options.proto",
+		Filename:      "plugin/verbose/v1/options/options.proto",
 	},
 }
 
 // Extension fields to descriptorpb.FieldOptions.
 var (
 	// optional bool noformat = 50000;
-	E_Noformat = &file_plugin_verbose_v1_options_proto_extTypes[0]
+	E_Noformat = &file_plugin_verbose_v1_options_options_proto_extTypes[0]
 )
 
-var File_plugin_verbose_v1_options_proto protoreflect.FileDescriptor
+var File_plugin_verbose_v1_options_options_proto protoreflect.FileDescriptor
 
-const file_plugin_verbose_v1_options_proto_rawDesc = "" +
+const file_plugin_verbose_v1_options_options_proto_rawDesc = "" +
 	"\n" +
-	"\x1fplugin/verbose/v1/options.proto\x12\x12verbose.v1.options\x1a google/protobuf/descriptor.proto:;\n" +
+	"'plugin/verbose/v1/options/options.proto\x12\x19plugin.verbose.v1.options\x1a google/protobuf/descriptor.proto:;\n" +
 	"\bnoformat\x12\x1d.google.protobuf.FieldOptions\x18І\x03 \x01(\bR\bnoformatB<Z:github.com/therenotomorrow/gotes/plugin/verbose/v1/optionsb\x06proto3"
 
-var file_plugin_verbose_v1_options_proto_goTypes = []any{
+var file_plugin_verbose_v1_options_options_proto_goTypes = []any{
 	(*descriptorpb.FieldOptions)(nil), // 0: google.protobuf.FieldOptions
 }
-var file_plugin_verbose_v1_options_proto_depIdxs = []int32{
-	0, // 0: verbose.v1.options.noformat:extendee -> google.protobuf.FieldOptions
+var file_plugin_verbose_v1_options_options_proto_depIdxs = []int32{
+	0, // 0: plugin.verbose.v1.options.noformat:extendee -> google.protobuf.FieldOptions
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -57,26 +57,26 @@ var file_plugin_verbose_v1_options_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_plugin_verbose_v1_options_proto_init() }
-func file_plugin_verbose_v1_options_proto_init() {
-	if File_plugin_verbose_v1_options_proto != nil {
+func init() { file_plugin_verbose_v1_options_options_proto_init() }
+func file_plugin_verbose_v1_options_options_proto_init() {
+	if File_plugin_verbose_v1_options_options_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plugin_verbose_v1_options_proto_rawDesc), len(file_plugin_verbose_v1_options_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_plugin_verbose_v1_options_options_proto_rawDesc), len(file_plugin_verbose_v1_options_options_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   0,
 			NumExtensions: 1,
 			NumServices:   0,
 		},
-		GoTypes:           file_plugin_verbose_v1_options_proto_goTypes,
-		DependencyIndexes: file_plugin_verbose_v1_options_proto_depIdxs,
-		ExtensionInfos:    file_plugin_verbose_v1_options_proto_extTypes,
+		GoTypes:           file_plugin_verbose_v1_options_options_proto_goTypes,
+		DependencyIndexes: file_plugin_verbose_v1_options_options_proto_depIdxs,
+		ExtensionInfos:    file_plugin_verbose_v1_options_options_proto_extTypes,
 	}.Build()
-	File_plugin_verbose_v1_options_proto = out.File
-	file_plugin_verbose_v1_options_proto_goTypes = nil
-	file_plugin_verbose_v1_options_proto_depIdxs = nil
+	File_plugin_verbose_v1_options_options_proto = out.File
+	file_plugin_verbose_v1_options_options_proto_goTypes = nil
+	file_plugin_verbose_v1_options_options_proto_depIdxs = nil
 }

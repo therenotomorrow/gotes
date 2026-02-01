@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/therenotomorrow/ex"
-	pbopts "github.com/therenotomorrow/gotes/plugin/verbose/v1"
+	"github.com/therenotomorrow/gotes/plugin/verbose/v1/options"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/proto"
 )
@@ -149,10 +149,10 @@ func (vg *Generator) generateVerbose(gen *protogen.GeneratedFile, message *proto
 }
 
 func (vg *Generator) isNoFormat(field *protogen.Field) bool {
-	options := field.Desc.Options()
+	opts := field.Desc.Options()
 
-	if proto.HasExtension(options, pbopts.E_Noformat) {
-		val, ok := proto.GetExtension(options, pbopts.E_Noformat).(bool)
+	if proto.HasExtension(opts, options.E_Noformat) {
+		val, ok := proto.GetExtension(opts, options.E_Noformat).(bool)
 		if ok {
 			return val
 		}
