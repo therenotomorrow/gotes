@@ -1,7 +1,7 @@
 version: '3'
 
 env:
-  GOBIN: "{{.ROOT_DIR}}/.bin"
+  GOBIN: '{{.ROOT_DIR}}/.bin'
 
 .task_tmpl: &task_tmpl
   internal: true

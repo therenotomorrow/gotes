@@ -6,8 +6,8 @@ env:
   GOOSE_MIGRATION_DIR: '{{.ROOT_DIR}}/tools/sql/migrations'
 
 vars:
-  BIN: "{{.ROOT_DIR}}/.bin"
-  CMD: "{{.ROOT_DIR}}/cmd"
+  BIN: '{{.ROOT_DIR}}/.bin'
+  CMD: '{{.ROOT_DIR}}/cmd'
 
 tasks:
   postgres:
@@ -57,9 +57,3 @@ tasks:
     desc: Run arbitrary commands directly with `sqlc` (e.g., `sqlc -- lint`)
     cmds:
       - ./.bin/sqlc {{.CLI_ARGS}}
-
-  gotes:
-    desc: Build and run service
-    cmds:
-      - 'go build -o {{.BIN}}/gotes {{.CMD}}/gotes/main.go'
-      - '{{.BIN}}/gotes'

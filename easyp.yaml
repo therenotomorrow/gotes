@@ -11,6 +11,7 @@ lint:
 
   ignore_only:
     PACKAGE_VERSION_SUFFIX: ['api/types/']
+    PACKAGE_DIRECTORY_MATCH: ['plugin/verbose']
 
 deps:
   - github.com/protocolbuffers/protobuf-go@v1.36.11
@@ -37,6 +38,12 @@ generate:
     - name: ./.bin/protoc-gen-grpc-gateway
       out: ./pkg
       opts:
+        paths: source_relative
+
+    - name: ./.bin/protoc-gen-verbose
+      out: ./pkg
+      opts:
+        suffix: verbose
         paths: source_relative
 
     - name: ./.bin/protoc-gen-openapiv2
