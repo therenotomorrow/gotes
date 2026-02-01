@@ -11,14 +11,14 @@ func (x *User) Verbose() string {
 	if x == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("User<Id=%v, Name=%v, Email=%v, Token=%v>", x.Id, x.Name, x.Email, x.Token)
+	return fmt.Sprintf("User<Id=%v, Name=%v, Email=%v>", x.Id, x.Name, x.Email)
 }
 
 func (x *RegisterUserRequest) Verbose() string {
 	if x == nil {
 		return "<nil>"
 	}
-	return fmt.Sprintf("RegisterUserRequest<Name=%v, Email=%v, Password=%v>", x.Name, x.Email, x.Password)
+	return fmt.Sprintf("RegisterUserRequest<Name=%v, Email=%v>", x.Name, x.Email)
 }
 
 func (x *RegisterUserResponse) Verbose() string {
