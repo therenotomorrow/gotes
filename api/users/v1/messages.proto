@@ -64,7 +64,8 @@ message RefreshTokenRequest {
   // Plain-text password used to re-authenticate the user.
   string password = 2 [
     (buf.validate.field).required = true,
-    (buf.validate.field).string.min_len = 8
+    (buf.validate.field).string.min_len = 8,
+    (plugin.verbose.v1.noformat) = true
   ];
 }
 
