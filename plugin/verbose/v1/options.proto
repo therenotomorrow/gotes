@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package plugin.verbose.v1;
+
+option go_package = "github.com/therenotomorrow/gotes/plugin/verbose/v1";
+
+import "google/protobuf/descriptor.proto";
+
+extend google.protobuf.FieldOptions {
+  bool noformat = 50000;
+}

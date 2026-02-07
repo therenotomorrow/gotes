@@ -1,4 +1,4 @@
 github.com/bufbuild/protovalidate v1.1.0 h1:LNuh5nL7LV1ySMaj/jqjTjqXe2tvkBNDTzV07f2wbVc=
-github.com/googleapis/googleapis v0.0.0-20260123053957-2ac88973cbafba24e4fb6f31038e0c76174ae704 h1:Q0E7f69P9u1x748xehIUv1DMFxQxcTM2Gai+KG7oYrk=
-github.com/grpc-ecosystem/grpc-gateway v0.0.0-20260130130623-eeff4fab111321f7d2b301083c3a40aeaa7c1643 h1:TxIwMVpNEkb7q+6Ss59Nu2cl3egDvmP0hRMDKfsv6FE=
+github.com/googleapis/googleapis v0.0.0-20260130211554-c0fcb35628690e9eb15dcefae41c651c67cd050b h1:btx59xhpFpoAXnLgYQc8a6uYbZp2Ix2BgQJeyKJcW3c=
+github.com/grpc-ecosystem/grpc-gateway v0.0.0-20260131054211-945ff6b6346e6c02d0a99c0c13370f230bf7ad40 h1:TxIwMVpNEkb7q+6Ss59Nu2cl3egDvmP0hRMDKfsv6FE=
 github.com/protocolbuffers/protobuf-go v1.36.11 h1:C4P8GTeFQJp1wx3GqXmun01jyHxyJaGJ0AVs0AurSuw=

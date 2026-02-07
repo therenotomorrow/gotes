@@ -1,0 +1,22 @@
+version: '3'
+
+vars:
+  BIN: '{{.ROOT_DIR}}/.bin'
+  CMD: '{{.ROOT_DIR}}/cmd'
+
+tasks:
+  gotes:
+    desc: Build gotes service
+    cmds:
+      - go build -o {{.BIN}}/gotes {{.CMD}}/gotes/main.go
+
+  plugin:
+    desc: Build protobuf plugin
+    cmds:
+      - |
+        protoc --plugin=protoc-gen-go={{.BIN}}/protoc-gen-go \
+          --go_out=. \
+          --go_opt=paths=source_relative \
+          plugin/verbose/v1/options.proto
+      - |
+        go build -o {{.BIN}}/protoc-gen-verbose plugin/cmd/main.go

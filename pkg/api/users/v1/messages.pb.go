@@ -9,6 +9,7 @@ package v1
 import (
 	_ "buf.build/gen/go/bufbuild/protovalidate/protocolbuffers/go/buf/validate"
 	types "github.com/therenotomorrow/gotes/pkg/api/types"
+	_ "github.com/therenotomorrow/gotes/plugin/verbose/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -314,25 +315,23 @@ var File_api_users_v1_messages_proto protoreflect.FileDescriptor
 
 const file_api_users_v1_messages_proto_rawDesc = "" +
 	"\n" +
-	"\x1bapi/users/v1/messages.proto\x12\fapi.users.v1\x1a\x12api/types/id.proto\x1a\x1bbuf/validate/validate.proto\"e\n" +
+	"\x1bapi/users/v1/messages.proto\x12\fapi.users.v1\x1a\x12api/types/id.proto\x1a\x1bbuf/validate/validate.proto\x1a\x1fplugin/verbose/v1/options.proto\"k\n" +
 	"\x04User\x12\x1d\n" +
 	"\x02id\x18\x01 \x01(\v2\r.api.types.IDR\x02id\x12\x12\n" +
 	"\x04name\x18\x02 \x01(\tR\x04name\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\x12\x14\n" +
-	"\x05token\x18\x04 \x01(\tR\x05token\"s\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\x12\x1a\n" +
+	"\x05token\x18\x04 \x01(\tB\x04\x80\xb5\x18\x01R\x05token\"w\n" +
 	"\x13RegisterUserRequest\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12 \n" +
 	"\x05email\x18\x02 \x01(\tB\n" +
-	"\xbaH\a\xc8\x01\x01r\x02`\x01R\x05email\x12&\n" +
-	"\bpassword\x18\x03 \x01(\tB\n" +
-	"\xbaH\a\xc8\x01\x01r\x02\x10\bR\bpassword\">\n" +
+	"\xbaH\a\xc8\x01\x01r\x02`\x01R\x05email\x12*\n" +
+	"\bpassword\x18\x03 \x01(\tB\x0e\xbaH\a\xc8\x01\x01r\x02\x10\b\x80\xb5\x18\x01R\bpassword\">\n" +
 	"\x14RegisterUserResponse\x12&\n" +
-	"\x04user\x18\x01 \x01(\v2\x12.api.users.v1.UserR\x04user\"_\n" +
+	"\x04user\x18\x01 \x01(\v2\x12.api.users.v1.UserR\x04user\"c\n" +
 	"\x13RefreshTokenRequest\x12 \n" +
 	"\x05email\x18\x01 \x01(\tB\n" +
-	"\xbaH\a\xc8\x01\x01r\x02`\x01R\x05email\x12&\n" +
-	"\bpassword\x18\x02 \x01(\tB\n" +
-	"\xbaH\a\xc8\x01\x01r\x02\x10\bR\bpassword\">\n" +
+	"\xbaH\a\xc8\x01\x01r\x02`\x01R\x05email\x12*\n" +
+	"\bpassword\x18\x02 \x01(\tB\x0e\xbaH\a\xc8\x01\x01r\x02\x10\b\x80\xb5\x18\x01R\bpassword\">\n" +
 	"\x14RefreshTokenResponse\x12&\n" +
 	"\x04user\x18\x01 \x01(\v2\x12.api.users.v1.UserR\x04userB3Z1github.com/therenotomorrow/gotes/pkg/api/users/v1b\x06proto3"
 

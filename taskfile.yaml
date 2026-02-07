@@ -1,8 +1,10 @@
 version: "3"
 
-dotenv: ['.env']
+dotenv: [ '.env' ]
 
 includes:
+  build:
+    taskfile: ./.tasks/build.yaml
   code:
     taskfile: ./.tasks/code.yaml
   services:
